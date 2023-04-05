@@ -1,6 +1,16 @@
 ﻿namespace TerevintoSoftware.AadAppRegistry.Tool.Services;
 
-internal class AppRegistrationService
+internal interface IAppRegistrationService
 {
 
+}
+
+internal class AppRegistrationService : IAppRegistrationService
+{
+    private readonly IAppRegistrationsGraphService _graphService;
+
+    public AppRegistrationService(IAppRegistrationsGraphService graphService)
+    {
+        _graphService = graphService;
+    }
 }

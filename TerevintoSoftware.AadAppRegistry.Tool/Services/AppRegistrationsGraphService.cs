@@ -6,22 +6,41 @@ using Spectre.Console;
 
 namespace TerevintoSoftware.AadAppRegistry.Tool.Services;
 
-internal class AppRegistrationsGraphService
+internal interface IAppRegistrationsGraphService
+{
+    Task AddApiScope(Application application, string scopeName, string scopeDisplayName, string scopeDescription);
+    Task AddClientSecretAsync(Application application, DateTimeOffset? expirationTime);
+    Task AddSpaRedirectUri(Application application, Uri redirectUri);
+    Task AddWebRedirectUri(Application application, Uri redirectUri);
+    Task<Application> CreateApplication(string displayName);
+    Task<Application> GetApplicationByDisplayName(string displayName);
+    Task<Application> GetApplicationById(string clientId);
+    Task SetApplicationIdUri(Application application, string uri);
+    Task<bool> ValidateConnection();
+}
+
+internal class AppRegistrationsGraphService : IAppRegistrationsGraphService
 {
     private readonly GraphServiceClient _graphClient;
 
-    public AppRegistrationsGraphService(GraphServiceClient graphServiceClient)
+    public AppRegistrationsGraphService(IGraphServiceClientFactory graphServiceClientFactory)
     {
-        _graphClient = graphServiceClient;
+        _graphClient = graphServiceClientFactory.CreateClient();
     }
 
-    public async Task ValidateConnection()
+    public async Task<bool> ValidateConnection()
     {
         try
         {
-            var randomClient = await _graphClient.Applications.GetAsync(r => r.QueryParameters.Top = 1);
+            var randomClient = await _graphClient.Applications.GetAsync(r =>
+            {
+                r.QueryParameters.Top = 1;
+                r.QueryParameters.Select = new[] { "appId" };
+            });
 
             AnsiConsole.MarkupLine($"Connection to Microsoft Graph [bold green]successful[/].");
+
+            return true;
         }
         catch (ODataError authError) when (authError.ResponseStatusCode == 403)
         {
@@ -31,6 +50,8 @@ internal class AppRegistrationsGraphService
         {
             AnsiConsole.WriteException(ex);
         }
+
+        return false;
     }
 
     public async Task<Application> GetApplicationById(string clientId)
@@ -102,7 +123,7 @@ internal class AppRegistrationsGraphService
     {
         application.IdentifierUris ??= new();
 
-        if (!application.IdentifierUris.Any(x => x == uri))
+        if (!application.IdentifierUris.Any())
         {
             application.IdentifierUris.Add(uri);
 
@@ -110,7 +131,7 @@ internal class AppRegistrationsGraphService
             {
                 await _graphClient.Applications[application.Id].PatchAsync(application);
 
-                AnsiConsole.MarkupLine($"[yellow]{application.AppId}[/]: ApplicationId URI added - {uri}");
+                AnsiConsole.MarkupLine($"[yellow]{application.AppId}[/]: ApplicationId URI set - {uri}");
             }
             catch (Exception ex)
             {
@@ -119,7 +140,7 @@ internal class AppRegistrationsGraphService
         }
     }
 
-    public async Task AddApiScope(Application application, string scopeName, string friendlyScopeName, string description)
+    public async Task AddApiScope(Application application, string scopeName, string scopeDisplayName, string scopeDescription)
     {
         application.Api ??= new();
         application.Api.Oauth2PermissionScopes ??= new();
@@ -128,10 +149,10 @@ internal class AppRegistrationsGraphService
         {
             application.Api.Oauth2PermissionScopes.Add(new PermissionScope
             {
-                UserConsentDisplayName = friendlyScopeName,
-                UserConsentDescription = description,
-                AdminConsentDisplayName = friendlyScopeName,
-                AdminConsentDescription = description,
+                UserConsentDisplayName = scopeDisplayName,
+                UserConsentDescription = scopeDescription,
+                AdminConsentDisplayName = scopeDisplayName,
+                AdminConsentDescription = scopeDescription,
                 IsEnabled = true
             });
 

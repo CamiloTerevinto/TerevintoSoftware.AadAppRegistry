@@ -1,32 +1,33 @@
 ﻿using Spectre.Console;
 using Spectre.Console.Cli;
-using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using TerevintoSoftware.AadAppRegistry.Tool.Configuration;
 using TerevintoSoftware.AadAppRegistry.Tool.Services;
+using TerevintoSoftware.AadAppRegistry.Tool.Settings;
 
 namespace TerevintoSoftware.AadAppRegistry.Tool.Commands;
 
-public class ConfigureCredentialsCommand : Command<ClientCredentialsSettings>
+internal class ConfigureCredentialsCommand : Command<ClientCredentialsSettings>
 {
+    private readonly IConfigurationService _configurationService;
+
+    public ConfigureCredentialsCommand(IConfigurationService configurationService)
+    {
+        _configurationService = configurationService;
+    }
+
     public override int Execute([NotNull] CommandContext context, [NotNull] ClientCredentialsSettings settings)
     {
-        if (settings.DisableConfigurationSave == true)
-        {
-            AnsiConsole.MarkupLine($"[yellow]Warning:[/] calling [underline]configure credentials[/] with configuration saving disabled has no effect.");
-            return -1;
-        }
+        var configuration = _configurationService.Load();
 
-        AppRegistryConfiguration.Instance.ClientCredentials = new ClientCredentialsOptions
+        configuration.ClientCredentials = new ClientCredentialsOptions
         {
             ClientId = settings.ClientId,
             ClientSecret = settings.ClientSecret,
             TenantId = settings.TenantId,
         };
 
-        var service = new ConfigurationService();
-
-        service.Save();
+        _configurationService.Save(configuration);
 
         return 0;
     }
@@ -57,23 +58,4 @@ public class ConfigureCredentialsCommand : Command<ClientCredentialsSettings>
 
         return base.Validate(context, settings);
     }
-}
-
-public class ClientCredentialsSettings : CommandSettings
-{
-    [CommandOption("-t|--tenant-id")]
-    [Description("The ID of the Tenant where the app is registered")]
-    public string TenantId { get; init; }
-
-    [CommandOption("-c|--client-id")]
-    [Description("The ID of the client")]
-    public string ClientId { get; init; }
-
-    [CommandOption("-s|--client-secret")]
-    [Description("The secret to authenticate the client")]
-    public string ClientSecret { get; init; }
-
-    [CommandOption("--disable-configuration-save")]
-    [Description("Whether to disable saving this configuration to disk")]
-    public bool? DisableConfigurationSave { get; set; }
 }

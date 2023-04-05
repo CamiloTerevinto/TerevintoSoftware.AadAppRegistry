@@ -3,7 +3,13 @@ using TerevintoSoftware.AadAppRegistry.Tool.Configuration;
 
 namespace TerevintoSoftware.AadAppRegistry.Tool.Services;
 
-internal class ConfigurationService
+internal interface IConfigurationService
+{
+    AppRegistryConfiguration Load();
+    void Save(AppRegistryConfiguration appRegistryConfiguration);
+}
+
+internal class ConfigurationService : IConfigurationService
 {
     private readonly string _configFilePath;
 
@@ -12,18 +18,18 @@ internal class ConfigurationService
         _configFilePath = Path.Combine(Directory.GetCurrentDirectory(), "AadAppRegistryConfig.json");
     }
 
-    public void Load()
+    public AppRegistryConfiguration Load()
     {
         if (File.Exists(_configFilePath))
         {
-            AppRegistryConfiguration.Instance = JsonSerializer.Deserialize<AppRegistryConfiguration>(File.ReadAllText(_configFilePath));
+            return JsonSerializer.Deserialize<AppRegistryConfiguration>(File.ReadAllText(_configFilePath));
         }
 
-        AppRegistryConfiguration.Instance = new();
+        return new();
     }
 
-    public void Save()
+    public void Save(AppRegistryConfiguration appRegistryConfiguration)
     {
-        File.WriteAllText(_configFilePath, JsonSerializer.Serialize(AppRegistryConfiguration.Instance));
+        File.WriteAllText(_configFilePath, JsonSerializer.Serialize(appRegistryConfiguration));
     }
 }
