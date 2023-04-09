@@ -1,4 +1,5 @@
-﻿using Spectre.Console.Cli;
+﻿using Spectre.Console;
+using Spectre.Console.Cli;
 using System.ComponentModel;
 
 namespace TerevintoSoftware.AadAppRegistry.Tool.Settings;
@@ -17,7 +18,30 @@ public class ClientCredentialsSettings : CommandSettings
     [Description("The secret to authenticate the client")]
     public string ClientSecret { get; init; }
 
-    //[CommandOption("--disable-configuration-save")]
-    //[Description("Whether to disable saving this configuration to disk")]
-    //public bool? DisableConfigurationSave { get; set; }
+    public override ValidationResult Validate()
+    {
+        var error = "";
+
+        if (string.IsNullOrEmpty(TenantId))
+        {
+            error += "A value for --tenant-id must be specified. ";
+        }
+
+        if (string.IsNullOrEmpty(ClientId))
+        {
+            error += "A value for --client-id must be specified. ";
+        }
+
+        if (string.IsNullOrEmpty(ClientSecret))
+        {
+            error += "A value for --client-secret must be specified.";
+        }
+
+        if (error != "")
+        {
+            return ValidationResult.Error(error);
+        }
+
+        return ValidationResult.Success();
+    }
 }

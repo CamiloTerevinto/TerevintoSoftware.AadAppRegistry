@@ -1,16 +1,41 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net7.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net7.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Authors>Camilo Terevinto</Authors>
+		<PackageTags>azure active directory; azure b2c</PackageTags>
+		<PackageProjectUrl>https://github.com/CamiloTerevinto/TerevintoSoftware.AadAppRegistry</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/CamiloTerevinto/TerevintoSoftware.AadAppRegistry</RepositoryUrl>
+		<PackageReleaseNotes>[0.1.0]: Initial beta release.
+		</PackageReleaseNotes>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackAsTool>true</PackAsTool>
+		<ToolCommandName>appreg</ToolCommandName>
+		<PackageOutputPath>Packaged</PackageOutputPath>
+		<Copyright>Camilo Terevinto</Copyright>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<Description>An opinionated .NET tool to facilitate the creation of Azure AD App Registrations.
+Read the README in the GitHub project for information on usage.
+		</Description>
+		<Version>0.1.0</Version>
+		<PackageIconUrl>https://www.camiloterevinto.com/assets/_nuget.png</PackageIconUrl>
+	</PropertyGroup>
 
-  <ItemGroup>
-	  <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="7.0.0" />
-	  <PackageReference Include="Microsoft.Graph" Version="5.3.0" />
-	  <PackageReference Include="Microsoft.Identity.Web" Version="2.6.1" />
-	  <PackageReference Include="Spectre.Console.Cli" Version="0.46.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Include="..\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+	
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="7.0.0" />
+		<PackageReference Include="Microsoft.Graph" Version="5.3.0" />
+		<PackageReference Include="Microsoft.Identity.Web" Version="2.6.1" />
+		<PackageReference Include="Spectre.Console.Cli" Version="0.46.0" />
+		<PackageReference Include="Spectre.Console.Json" Version="0.46.0" />
+	</ItemGroup>
 
 </Project>

@@ -1,5 +1,4 @@
-﻿using Spectre.Console;
-using Spectre.Console.Cli;
+﻿using Spectre.Console.Cli;
 using System.Diagnostics.CodeAnalysis;
 using TerevintoSoftware.AadAppRegistry.Tool.Configuration;
 using TerevintoSoftware.AadAppRegistry.Tool.Services;
@@ -30,32 +29,5 @@ internal class ConfigureCredentialsCommand : Command<ClientCredentialsSettings>
         _configurationService.Save(configuration);
 
         return 0;
-    }
-
-    public override ValidationResult Validate([NotNull] CommandContext context, [NotNull] ClientCredentialsSettings settings)
-    {
-        var error = "";
-
-        if (string.IsNullOrEmpty(settings.TenantId))
-        {
-            error += "A value for --tenant-id must be specified. ";
-        }
-
-        if (string.IsNullOrEmpty(settings.ClientId))
-        {
-            error += "A value for --client-id must be specified. ";
-        }
-
-        if (string.IsNullOrEmpty(settings.ClientSecret))
-        {
-            error += "A value for --client-secret must be specified.";
-        }
-
-        if (error != "")
-        {
-            return ValidationResult.Error(error);
-        }
-
-        return base.Validate(context, settings);
     }
 }

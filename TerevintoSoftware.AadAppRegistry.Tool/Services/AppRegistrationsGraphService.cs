@@ -3,20 +3,21 @@ using Microsoft.Graph.Applications.Item.AddPassword;
 using Microsoft.Graph.Models;
 using Microsoft.Graph.Models.ODataErrors;
 using Spectre.Console;
+using TerevintoSoftware.AadAppRegistry.Tool.Settings;
 
 namespace TerevintoSoftware.AadAppRegistry.Tool.Services;
 
 internal interface IAppRegistrationsGraphService
 {
-    Task AddApiScope(Application application, string scopeName, string scopeDisplayName, string scopeDescription);
-    Task AddClientSecretAsync(Application application, DateTimeOffset? expirationTime);
-    Task AddSpaRedirectUri(Application application, Uri redirectUri);
-    Task AddWebRedirectUri(Application application, Uri redirectUri);
-    Task<Application> CreateApplication(string displayName);
-    Task<Application> GetApplicationByDisplayName(string displayName);
-    Task<Application> GetApplicationById(string clientId);
-    Task SetApplicationIdUri(Application application, string uri);
-    Task<bool> ValidateConnection();
+    Task AddApiScopeAsync(Application application, string scopeName, string scopeDisplayName, string scopeDescription);
+    Task<string> AddClientSecretAsync(Application application, DateTimeOffset? expirationTime);
+    Task<Application> AddSpaRedirectUriAsync(Application application, Uri redirectUri);
+    Task<Application> AddWebRedirectUriAsync(Application application, Uri redirectUri);
+    Task<Application> CreateApplicationAsync(string displayName, SignInAudienceType signInAudienceType);
+    Task<Application> GetApplicationByDisplayNameAsync(string displayName);
+    Task<Application> GetApplicationByIdAsync(string clientId);
+    Task SetApplicationIdUriAsync(Application application, string uri);
+    Task<bool> ValidateConnectionAsync();
 }
 
 internal class AppRegistrationsGraphService : IAppRegistrationsGraphService
@@ -28,7 +29,7 @@ internal class AppRegistrationsGraphService : IAppRegistrationsGraphService
         _graphClient = graphServiceClientFactory.CreateClient();
     }
 
-    public async Task<bool> ValidateConnection()
+    public async Task<bool> ValidateConnectionAsync()
     {
         try
         {
@@ -54,7 +55,7 @@ internal class AppRegistrationsGraphService : IAppRegistrationsGraphService
         return false;
     }
 
-    public async Task<Application> GetApplicationById(string clientId)
+    public async Task<Application> GetApplicationByIdAsync(string clientId)
     {
         try
         {
@@ -73,7 +74,7 @@ internal class AppRegistrationsGraphService : IAppRegistrationsGraphService
         }
     }
 
-    public async Task<Application> GetApplicationByDisplayName(string displayName)
+    public async Task<Application> GetApplicationByDisplayNameAsync(string displayName)
     {
         try
         {
@@ -83,7 +84,7 @@ internal class AppRegistrationsGraphService : IAppRegistrationsGraphService
                 r.QueryParameters.Top = 1;
             });
 
-            return apps.OdataCount == 1 ? apps.Value[0] : null;
+            return apps.Value.Count == 1 ? apps.Value[0] : null;
         }
         catch (Exception ex)
         {
@@ -92,84 +93,63 @@ internal class AppRegistrationsGraphService : IAppRegistrationsGraphService
         }
     }
 
-    public async Task<Application> CreateApplication(string displayName)
+    public async Task<Application> CreateApplicationAsync(string displayName, SignInAudienceType signInAudienceType)
     {
-        var app = await GetApplicationByDisplayName(displayName);
-
-        if (app != null)
+        var appToBeCreated = new Application
         {
-            return app;
-        }
+            DisplayName = displayName,
+            SignInAudience = signInAudienceType.ToString(),
+        };
 
-        try
-        {
-            app = new Application
-            {
-                DisplayName = displayName
-            };
-
-            await _graphClient.Applications.PostAsync(app);
-
-            return app;
-        }
-        catch (Exception ex)
-        {
-            AnsiConsole.WriteException(ex);
-            return null;
-        }
+        return await _graphClient.Applications.PostAsync(appToBeCreated);
     }
 
-    public async Task SetApplicationIdUri(Application application, string uri)
+    public async Task SetApplicationIdUriAsync(Application application, string uri)
     {
         application.IdentifierUris ??= new();
 
         if (!application.IdentifierUris.Any())
         {
-            application.IdentifierUris.Add(uri);
-
-            try
+            var toUpdate = new Application
             {
-                await _graphClient.Applications[application.Id].PatchAsync(application);
-
-                AnsiConsole.MarkupLine($"[yellow]{application.AppId}[/]: ApplicationId URI set - {uri}");
-            }
-            catch (Exception ex)
-            {
-                AnsiConsole.WriteException(ex);
-            }
+                IdentifierUris = new() { uri }
+            };
+            
+            await _graphClient.Applications[application.Id].PatchAsync(toUpdate);
         }
     }
 
-    public async Task AddApiScope(Application application, string scopeName, string scopeDisplayName, string scopeDescription)
+    public async Task AddApiScopeAsync(Application application, string scopeName, string scopeDisplayName, string scopeDescription)
     {
         application.Api ??= new();
         application.Api.Oauth2PermissionScopes ??= new();
 
         if (!application.Api.Oauth2PermissionScopes.Any(x => x.Value == scopeName))
         {
-            application.Api.Oauth2PermissionScopes.Add(new PermissionScope
+            var updatedApp = new Application
             {
-                UserConsentDisplayName = scopeDisplayName,
-                UserConsentDescription = scopeDescription,
-                AdminConsentDisplayName = scopeDisplayName,
-                AdminConsentDescription = scopeDescription,
-                IsEnabled = true
-            });
+                Api = new ApiApplication
+                {
+                    Oauth2PermissionScopes = new()
+                    {
+                        new PermissionScope
+                        {
+                            AdminConsentDisplayName = scopeDisplayName,
+                            AdminConsentDescription = scopeDescription,
+                            Value = scopeName,
+                            IsEnabled = true,
+                            Id = Guid.NewGuid(),
+                            Type = "Admin"
+                        }
+                    }
+                }
+            };
 
-            try
-            {
-                await _graphClient.Applications[application.Id].PatchAsync(application);
-
-                AnsiConsole.MarkupLine($"[yellow]{application.AppId}[/]: API scope added - {scopeName}");
-            }
-            catch (Exception ex)
-            {
-                AnsiConsole.WriteException(ex);
-            }
+            await _graphClient.Applications[application.Id].PatchAsync(updatedApp);
         }
     }
 
-    public async Task AddClientSecretAsync(Application application, DateTimeOffset? expirationTime)
+    public async Task<string> AddClientSecretAsync(Application application, DateTimeOffset? expirationTime)
     {
         var requestBody = new AddPasswordPostRequestBody
         {
@@ -180,19 +160,12 @@ internal class AppRegistrationsGraphService : IAppRegistrationsGraphService
             }
         };
 
-        try
-        {
-            var result = await _graphClient.Applications[application.Id].AddPassword.PostAsync(requestBody);
+        var result = await _graphClient.Applications[application.Id].AddPassword.PostAsync(requestBody);
 
-            AnsiConsole.MarkupLine($"[yellow]{application.AppId}[/]: secret generated: [green]{result.SecretText}[/]. [bold red]Do not close this window until you have copied the Secret as you will not be able to get the value again.[/]");
-        }
-        catch (Exception ex)
-        {
-            AnsiConsole.WriteException(ex);
-        }
+        return result.SecretText;
     }
 
-    public async Task AddSpaRedirectUri(Application application, Uri redirectUri)
+    public async Task<Application> AddSpaRedirectUriAsync(Application application, Uri redirectUri)
     {
         application.Spa ??= new();
         application.Spa.RedirectUris ??= new();
@@ -201,20 +174,13 @@ internal class AppRegistrationsGraphService : IAppRegistrationsGraphService
         {
             application.Spa.RedirectUris.Add(redirectUri.ToString());
 
-            try
-            {
-                await _graphClient.Applications[application.Id].PatchAsync(application);
-
-                AnsiConsole.MarkupLine($"[yellow]{application.AppId}[/]: SPA redirect uri added - {redirectUri}");
-            }
-            catch (Exception ex)
-            {
-                AnsiConsole.WriteException(ex);
-            }
+            return await _graphClient.Applications[application.Id].PatchAsync(application);
         }
+
+        return application;
     }
 
-    public async Task AddWebRedirectUri(Application application, Uri redirectUri)
+    public async Task<Application> AddWebRedirectUriAsync(Application application, Uri redirectUri)
     {
         application.Web ??= new();
         application.Web.RedirectUris ??= new();
@@ -223,16 +189,9 @@ internal class AppRegistrationsGraphService : IAppRegistrationsGraphService
         {
             application.Web.RedirectUris.Add(redirectUri.ToString());
 
-            try
-            {
-                await _graphClient.Applications[application.Id].PatchAsync(application);
-
-                AnsiConsole.MarkupLine($"[yellow]{application.AppId}[/]: Web redirect uri added - {redirectUri}");
-            }
-            catch (Exception ex)
-            {
-                AnsiConsole.WriteException(ex);
-            }
+            return await _graphClient.Applications[application.Id].PatchAsync(application);
         }
+
+        return application;
     }
 }

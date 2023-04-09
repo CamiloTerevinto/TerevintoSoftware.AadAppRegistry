@@ -4,6 +4,7 @@ public class AppRegistryConfiguration
 {
     public ClientCredentialsOptions ClientCredentials { get; set; }
     public OperatingMode OperatingMode { get; set; }
+    public string TenantName { get; set; }
 
     public AppRegistryConfiguration()
     {

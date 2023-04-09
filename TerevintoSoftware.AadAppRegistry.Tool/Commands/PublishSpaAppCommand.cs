@@ -6,7 +6,7 @@ using TerevintoSoftware.AadAppRegistry.Tool.Settings;
 
 namespace TerevintoSoftware.AadAppRegistry.Tool.Commands;
 
-internal class PublishSpaAppCommand : AsyncCommand<PublishWebCommandSettings>
+internal class PublishSpaAppCommand : AsyncCommand<PublishSpaCommandSettings>
 {
     private readonly IAppRegistrationService _appRegistrationService;
 
@@ -15,9 +15,11 @@ internal class PublishSpaAppCommand : AsyncCommand<PublishWebCommandSettings>
         _appRegistrationService = appRegistrationService;
     }
 
-    public override Task<int> ExecuteAsync(CommandContext context, PublishWebCommandSettings settings)
+    public override Task<int> ExecuteAsync(CommandContext context, PublishSpaCommandSettings settings)
     {
-        AnsiConsole.WriteLine(JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true }));
-        return Task.FromResult(0);
+        AnsiConsole.Markup("[bold red]Error:[/] this command has not yet been implemented.");
+        return Task.FromResult(1);
+        //AnsiConsole.WriteLine(JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true }));
+        //return Task.FromResult(0);
     }
 }

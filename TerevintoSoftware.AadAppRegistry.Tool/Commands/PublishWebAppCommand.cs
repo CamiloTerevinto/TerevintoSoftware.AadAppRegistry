@@ -17,7 +17,9 @@ internal class PublishWebAppCommand : AsyncCommand<PublishWebCommandSettings>
 
     public override Task<int> ExecuteAsync(CommandContext context, PublishWebCommandSettings settings)
     {
-        AnsiConsole.WriteLine(JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true }));
-        return Task.FromResult(0);
+        AnsiConsole.Markup("[bold red]Error:[/] this command has not yet been implemented.");
+        return Task.FromResult(1);
+        //AnsiConsole.WriteLine(JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true }));
+        //return Task.FromResult(0);
     }
 }

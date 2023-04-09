@@ -1,12 +1,11 @@
 ﻿using Spectre.Console;
 using Spectre.Console.Cli;
-using System.Text.Json;
 using TerevintoSoftware.AadAppRegistry.Tool.Services;
 using TerevintoSoftware.AadAppRegistry.Tool.Settings;
 
 namespace TerevintoSoftware.AadAppRegistry.Tool.Commands;
 
-internal class PublishConfidentialAppCommand : AsyncCommand<PublishWebCommandSettings>
+internal class PublishConfidentialAppCommand : AsyncCommand<PublishConfidentialCommandSettings>
 {
     private readonly IAppRegistrationService _appRegistrationService;
 
@@ -15,9 +14,11 @@ internal class PublishConfidentialAppCommand : AsyncCommand<PublishWebCommandSet
         _appRegistrationService = appRegistrationService;
     }
 
-    public override Task<int> ExecuteAsync(CommandContext context, PublishWebCommandSettings settings)
+    public override Task<int> ExecuteAsync(CommandContext context, PublishConfidentialCommandSettings settings)
     {
-        AnsiConsole.WriteLine(JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true }));
-        return Task.FromResult(0);
+        AnsiConsole.Markup("[bold red]Error:[/] this command has not yet been implemented.");
+        return Task.FromResult(1);
+        //AnsiConsole.WriteLine(JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true }));
+        //return Task.FromResult(0);
     }
 }

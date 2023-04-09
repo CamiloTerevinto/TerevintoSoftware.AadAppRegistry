@@ -1,8 +1,10 @@
 ﻿using Spectre.Console;
 using Spectre.Console.Cli;
+using Spectre.Console.Json;
 using System.Text.Json;
 using TerevintoSoftware.AadAppRegistry.Tool.Services;
 using TerevintoSoftware.AadAppRegistry.Tool.Settings;
+using TerevintoSoftware.AadAppRegistry.Tool.Utilities;
 
 namespace TerevintoSoftware.AadAppRegistry.Tool.Commands;
 
@@ -15,9 +17,28 @@ internal class PublishApiAppCommand : AsyncCommand<PublishApiCommandSettings>
         _appRegistrationService = appRegistrationService;
     }
 
-    public override Task<int> ExecuteAsync(CommandContext context, PublishApiCommandSettings settings)
+    public override async Task<int> ExecuteAsync(CommandContext context, PublishApiCommandSettings settings)
     {
-        AnsiConsole.WriteLine(JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true }));
-        return Task.FromResult(0);
+        try
+        {
+            var result = await _appRegistrationService.RegisterApiApp(settings);
+
+            switch (result.Status)
+            {
+                case OperationResultStatus.Success:
+                {
+                    AnsiConsole.Write(new JsonText(JsonSerializer.Serialize(result.Data)));
+                    return 0;
+                }
+                case OperationResultStatus.AppRegistrationPreviouslyCreated: return 0;
+                case OperationResultStatus.Failed: return 1;
+                default: return 1;
+            }
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.WriteException(ex);
+            return 1;
+        }
     }
 }
