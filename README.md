@@ -2,7 +2,7 @@
 
 [![Nuget version](https://img.shields.io/nuget/v/TerevintoSoftware.AadAppRegistry.Tool)](https://www.nuget.org/packages/TerevintoSoftware.AadAppRegistry.Tool/)
 
-![Sample image of the help screen for the publish api command](https://github.com/CamiloTerevinto/TerevintoSoftware.AadAppRegistryassets/sample.png)
+![Sample image of the help screen for the publish api command](https://github.com/CamiloTerevinto/TerevintoSoftware.AadAppRegistry/assets/sample.png)
 
 ## 1. Introduction
 
