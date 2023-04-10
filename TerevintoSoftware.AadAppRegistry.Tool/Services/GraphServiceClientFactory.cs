@@ -1,5 +1,6 @@
 ﻿using Azure.Identity;
 using Microsoft.Graph;
+using TerevintoSoftware.AadAppRegistry.Tool.Models;
 
 namespace TerevintoSoftware.AadAppRegistry.Tool.Services;
 
@@ -23,12 +24,12 @@ internal class GraphServiceClientFactory : IGraphServiceClientFactory
 
         if (!clientCredentials.IsValid())
         {
-            throw new InvalidOperationException("Credentials must be set first using the `configure credentials` command");
+            throw new InvalidCredentialsException();
         }
 
         var creds = new ClientSecretCredential(clientCredentials.TenantId,
             clientCredentials.ClientId, clientCredentials.ClientSecret);
 
-        return new GraphServiceClient(creds, scopes: new[] { "https://graph.microsoft.com/.default" });
+        return new(creds, scopes: new[] { "https://graph.microsoft.com/.default" });
     }
 }

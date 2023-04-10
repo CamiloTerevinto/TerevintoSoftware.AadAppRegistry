@@ -5,24 +5,26 @@ namespace TerevintoSoftware.AadAppRegistry.Tool.Services;
 
 internal interface IConfigurationService
 {
+    string ConfigFilePath { get; }
+
     AppRegistryConfiguration Load();
     void Save(AppRegistryConfiguration appRegistryConfiguration);
 }
 
 internal class ConfigurationService : IConfigurationService
 {
-    private readonly string _configFilePath;
+    public string ConfigFilePath { get; }
 
     public ConfigurationService()
     {
-        _configFilePath = Path.Combine(Directory.GetCurrentDirectory(), "AadAppRegistryConfig.json");
+        ConfigFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "appreg.json");
     }
 
     public AppRegistryConfiguration Load()
     {
-        if (File.Exists(_configFilePath))
+        if (File.Exists(ConfigFilePath))
         {
-            return JsonSerializer.Deserialize<AppRegistryConfiguration>(File.ReadAllText(_configFilePath));
+            return JsonSerializer.Deserialize<AppRegistryConfiguration>(File.ReadAllText(ConfigFilePath));
         }
 
         return new();
@@ -30,6 +32,6 @@ internal class ConfigurationService : IConfigurationService
 
     public void Save(AppRegistryConfiguration appRegistryConfiguration)
     {
-        File.WriteAllText(_configFilePath, JsonSerializer.Serialize(appRegistryConfiguration));
+        File.WriteAllText(ConfigFilePath, JsonSerializer.Serialize(appRegistryConfiguration));
     }
 }

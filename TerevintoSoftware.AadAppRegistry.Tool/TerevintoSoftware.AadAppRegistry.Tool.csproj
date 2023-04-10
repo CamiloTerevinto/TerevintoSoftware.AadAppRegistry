@@ -8,8 +8,6 @@
 		<PackageTags>azure active directory; azure b2c</PackageTags>
 		<PackageProjectUrl>https://github.com/CamiloTerevinto/TerevintoSoftware.AadAppRegistry</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/CamiloTerevinto/TerevintoSoftware.AadAppRegistry</RepositoryUrl>
-		<PackageReleaseNotes>[0.1.0]: Initial beta release.
-		</PackageReleaseNotes>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackAsTool>true</PackAsTool>
 		<ToolCommandName>appreg</ToolCommandName>
@@ -19,7 +17,10 @@
 		<Description>An opinionated .NET tool to facilitate the creation of Azure AD App Registrations.
 Read the README in the GitHub project for information on usage.
 		</Description>
-		<Version>0.1.0</Version>
+		<PackageReleaseNotes>[0.2.0]: Change the default path to the configuration file to be the user's directory.
+[0.1.0]: Initial beta release.
+		</PackageReleaseNotes>
+		<Version>0.2.0</Version>
 		<PackageIconUrl>https://www.camiloterevinto.com/assets/_nuget.png</PackageIconUrl>
 	</PropertyGroup>
 

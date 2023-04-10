@@ -1,4 +1,5 @@
-﻿using Spectre.Console.Cli;
+﻿using Spectre.Console;
+using Spectre.Console.Cli;
 using System.Diagnostics.CodeAnalysis;
 using TerevintoSoftware.AadAppRegistry.Tool.Configuration;
 using TerevintoSoftware.AadAppRegistry.Tool.Services;
@@ -27,6 +28,8 @@ internal class ConfigureCredentialsCommand : Command<ClientCredentialsSettings>
         };
 
         _configurationService.Save(configuration);
+
+        AnsiConsole.MarkupLine($"[bold green]Success:[/] credentials stored under {_configurationService.ConfigFilePath}");
 
         return 0;
     }

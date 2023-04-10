@@ -5,17 +5,17 @@ namespace TerevintoSoftware.AadAppRegistry.Tool.Commands;
 
 internal class ValidateCommand : AsyncCommand
 {
-    private readonly IAppRegistrationsGraphService _appRegistrationsGraphService;
+    private readonly IGraphClientService _appRegistrationsGraphService;
 
-    public ValidateCommand(IAppRegistrationsGraphService appRegistrationsGraphService)
+    public ValidateCommand(IGraphClientService appRegistrationsGraphService)
     {
         _appRegistrationsGraphService = appRegistrationsGraphService;
     }
 
     public override async Task<int> ExecuteAsync(CommandContext context)
     {
-        var success = await _appRegistrationsGraphService.ValidateConnectionAsync();
+        await _appRegistrationsGraphService.ValidateConnectionAsync();
 
-        return success ? 0 : 1;
+        return 0;
     }
 }

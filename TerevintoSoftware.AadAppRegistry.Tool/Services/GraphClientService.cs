@@ -1,13 +1,12 @@
 ﻿using Microsoft.Graph;
 using Microsoft.Graph.Applications.Item.AddPassword;
 using Microsoft.Graph.Models;
-using Microsoft.Graph.Models.ODataErrors;
 using Spectre.Console;
 using TerevintoSoftware.AadAppRegistry.Tool.Settings;
 
 namespace TerevintoSoftware.AadAppRegistry.Tool.Services;
 
-internal interface IAppRegistrationsGraphService
+internal interface IGraphClientService
 {
     Task AddApiScopeAsync(Application application, string scopeName, string scopeDisplayName, string scopeDescription);
     Task<string> AddClientSecretAsync(Application application, DateTimeOffset? expirationTime);
@@ -17,80 +16,51 @@ internal interface IAppRegistrationsGraphService
     Task<Application> GetApplicationByDisplayNameAsync(string displayName);
     Task<Application> GetApplicationByIdAsync(string clientId);
     Task SetApplicationIdUriAsync(Application application, string uri);
-    Task<bool> ValidateConnectionAsync();
+    Task ValidateConnectionAsync();
 }
 
-internal class AppRegistrationsGraphService : IAppRegistrationsGraphService
+internal class GraphClientService : IGraphClientService
 {
-    private readonly GraphServiceClient _graphClient;
+    private readonly IGraphServiceClientFactory _factory;
 
-    public AppRegistrationsGraphService(IGraphServiceClientFactory graphServiceClientFactory)
+    private GraphServiceClient GraphClient => _factory.CreateClient();
+
+    public GraphClientService(IGraphServiceClientFactory graphServiceClientFactory)
     {
-        _graphClient = graphServiceClientFactory.CreateClient();
+        _factory = graphServiceClientFactory;
     }
 
-    public async Task<bool> ValidateConnectionAsync()
+    public async Task ValidateConnectionAsync()
     {
-        try
+        var randomClient = await GraphClient.Applications.GetAsync(r =>
         {
-            var randomClient = await _graphClient.Applications.GetAsync(r =>
-            {
-                r.QueryParameters.Top = 1;
-                r.QueryParameters.Select = new[] { "appId" };
-            });
+            r.QueryParameters.Top = 1;
+            r.QueryParameters.Select = new[] { "appId" };
+        });
 
-            AnsiConsole.MarkupLine($"Connection to Microsoft Graph [bold green]successful[/].");
-
-            return true;
-        }
-        catch (ODataError authError) when (authError.ResponseStatusCode == 403)
-        {
-            AnsiConsole.Write($"[bold red]Error: {authError.Error.Message}[/]");
-        }
-        catch (Exception ex)
-        {
-            AnsiConsole.WriteException(ex);
-        }
-
-        return false;
+        AnsiConsole.MarkupLine($"[bold green]Success:[/] connection to Microsoft Graph was successful.");
     }
 
     public async Task<Application> GetApplicationByIdAsync(string clientId)
     {
-        try
+        var apps = await GraphClient.Applications.GetAsync(r =>
         {
-            var apps = await _graphClient.Applications.GetAsync(r =>
-            {
-                r.QueryParameters.Filter = $"appId eq '{clientId}'";
-                r.QueryParameters.Top = 1;
-            });
+            r.QueryParameters.Filter = $"appId eq '{clientId}'";
+            r.QueryParameters.Top = 1;
+        });
 
-            return apps.OdataCount == 1 ? apps.Value[0] : null;
-        }
-        catch (Exception ex)
-        {
-            AnsiConsole.WriteException(ex);
-            return null;
-        }
+        return apps.Value.Count == 1 ? apps.Value[0] : null;
     }
 
     public async Task<Application> GetApplicationByDisplayNameAsync(string displayName)
     {
-        try
+        var apps = await GraphClient.Applications.GetAsync(r =>
         {
-            var apps = await _graphClient.Applications.GetAsync(r =>
-            {
-                r.QueryParameters.Filter = $"displayName eq '{displayName}'";
-                r.QueryParameters.Top = 1;
-            });
+            r.QueryParameters.Filter = $"displayName eq '{displayName}'";
+            r.QueryParameters.Top = 1;
+        });
 
-            return apps.Value.Count == 1 ? apps.Value[0] : null;
-        }
-        catch (Exception ex)
-        {
-            AnsiConsole.WriteException(ex);
-            return null;
-        }
+        return apps.Value.Count == 1 ? apps.Value[0] : null;
     }
 
     public async Task<Application> CreateApplicationAsync(string displayName, SignInAudienceType signInAudienceType)
@@ -101,7 +71,7 @@ internal class AppRegistrationsGraphService : IAppRegistrationsGraphService
             SignInAudience = signInAudienceType.ToString(),
         };
 
-        return await _graphClient.Applications.PostAsync(appToBeCreated);
+        return await GraphClient.Applications.PostAsync(appToBeCreated);
     }
 
     public async Task SetApplicationIdUriAsync(Application application, string uri)
@@ -114,8 +84,8 @@ internal class AppRegistrationsGraphService : IAppRegistrationsGraphService
             {
                 IdentifierUris = new() { uri }
             };
-            
-            await _graphClient.Applications[application.Id].PatchAsync(toUpdate);
+
+            await GraphClient.Applications[application.Id].PatchAsync(toUpdate);
         }
     }
 
@@ -145,7 +115,7 @@ internal class AppRegistrationsGraphService : IAppRegistrationsGraphService
                 }
             };
 
-            await _graphClient.Applications[application.Id].PatchAsync(updatedApp);
+            await GraphClient.Applications[application.Id].PatchAsync(updatedApp);
         }
     }
 
@@ -160,7 +130,7 @@ internal class AppRegistrationsGraphService : IAppRegistrationsGraphService
             }
         };
 
-        var result = await _graphClient.Applications[application.Id].AddPassword.PostAsync(requestBody);
+        var result = await GraphClient.Applications[application.Id].AddPassword.PostAsync(requestBody);
 
         return result.SecretText;
     }
@@ -174,7 +144,7 @@ internal class AppRegistrationsGraphService : IAppRegistrationsGraphService
         {
             application.Spa.RedirectUris.Add(redirectUri.ToString());
 
-            return await _graphClient.Applications[application.Id].PatchAsync(application);
+            return await GraphClient.Applications[application.Id].PatchAsync(application);
         }
 
         return application;
@@ -189,7 +159,7 @@ internal class AppRegistrationsGraphService : IAppRegistrationsGraphService
         {
             application.Web.RedirectUris.Add(redirectUri.ToString());
 
-            return await _graphClient.Applications[application.Id].PatchAsync(application);
+            return await GraphClient.Applications[application.Id].PatchAsync(application);
         }
 
         return application;

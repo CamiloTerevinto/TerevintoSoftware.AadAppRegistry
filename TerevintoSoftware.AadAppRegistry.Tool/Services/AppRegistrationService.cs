@@ -12,10 +12,10 @@ internal interface IAppRegistrationService
 
 internal class AppRegistrationService : IAppRegistrationService
 {
-    private readonly IAppRegistrationsGraphService _graphService;
+    private readonly IGraphClientService _graphService;
     private readonly AppRegistryConfiguration _appRegistryConfiguration;
 
-    public AppRegistrationService(IAppRegistrationsGraphService graphService, IConfigurationService configurationService)
+    public AppRegistrationService(IGraphClientService graphService, IConfigurationService configurationService)
     {
         _graphService = graphService;
         _appRegistryConfiguration = configurationService.Load();

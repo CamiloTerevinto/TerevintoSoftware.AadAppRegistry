@@ -52,7 +52,7 @@ There are two critical commands that you'll want to run first - `configure crede
 
 2. If you need to switch to B2C mode, run `configure mode --use-b2c`.
 
-**Note**: both `configure` commands use a json file stored in the directory where the tool is run form. Future versions will support changing this.
+**Note**: both `configure` commands use a json file stored in the user's directory.
 
 ### 3.2 Creating applications
 

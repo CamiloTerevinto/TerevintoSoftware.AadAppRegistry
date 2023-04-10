@@ -24,7 +24,7 @@ internal class ConfigureModeCommand : Command<ConfigureModeSettings>
 
         _configurationService.Save(configuration);
 
-        AnsiConsole.MarkupLine($"[bold green]Success:[/] operating mode changed to {configuration.OperatingMode}");
+        AnsiConsole.MarkupLine($"[bold green]Success:[/] operating mode changed to {configuration.OperatingMode} under {_configurationService.ConfigFilePath}");
 
         return 0;
     }

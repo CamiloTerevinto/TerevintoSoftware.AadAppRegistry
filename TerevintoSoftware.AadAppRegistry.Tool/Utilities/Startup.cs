@@ -11,7 +11,7 @@ internal static class Startup
         var services = new ServiceCollection()
             .AddSingleton<IConfigurationService, ConfigurationService>()
             .AddSingleton<IGraphServiceClientFactory, GraphServiceClientFactory>()
-            .AddSingleton<IAppRegistrationsGraphService, AppRegistrationsGraphService>()
+            .AddSingleton<IGraphClientService, GraphClientService>()
             .AddSingleton<IAppRegistrationService, AppRegistrationService>();
 
         return new TypeRegistrar(services);

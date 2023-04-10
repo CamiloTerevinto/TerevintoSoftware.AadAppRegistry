@@ -1,5 +1,8 @@
-﻿using Spectre.Console.Cli;
+﻿using Microsoft.Graph.Models.ODataErrors;
+using Spectre.Console;
+using Spectre.Console.Cli;
 using TerevintoSoftware.AadAppRegistry.Tool.Commands;
+using TerevintoSoftware.AadAppRegistry.Tool.Models;
 using TerevintoSoftware.AadAppRegistry.Tool.Utilities;
 
 var registrar = Startup.BuildTypeRegistrar();
@@ -10,6 +13,24 @@ app.Configure(appConfiguration =>
     appConfiguration
         .SetApplicationName("AadAppRegistry")
         .SetApplicationVersion("0.0.1");
+
+    appConfiguration.SetExceptionHandler(ex =>
+    {
+        if (ex is InvalidCredentialsException)
+        {
+            AnsiConsole.MarkupLine("[bold red]Error:[/] credentials must be set first using the `configure credentials` command");
+        }
+        else if (ex is ODataError oDataError)
+        {
+            AnsiConsole.MarkupLine($"[bold red]Error:[/] {oDataError.Error?.Message ?? oDataError.Message}");
+        }
+        else
+        {
+            AnsiConsole.MarkupLine($"[bold red]Error:[/] {ex.Message}");
+        }
+
+        return 1;
+    });
 
     appConfiguration.AddBranch("configure", configure =>
     {
