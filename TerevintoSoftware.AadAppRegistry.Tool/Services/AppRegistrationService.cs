@@ -8,6 +8,9 @@ namespace TerevintoSoftware.AadAppRegistry.Tool.Services;
 internal interface IAppRegistrationService
 {
     Task<OperationResult<ApiAppRegistrationResult>> RegisterApiApp(PublishApiCommandSettings settings);
+    Task<OperationResult<ConfidentialAppRegistrationResult>> RegisterConfidentialApp(PublishConfidentialCommandSettings settings);
+    Task<OperationResult<SpaAppRegistrationResult>> RegisterSpaApp(PublishSpaCommandSettings settings);
+    Task<OperationResult<WebAppRegistrationResult>> RegisterWebApp(PublishWebCommandSettings settings);
 }
 
 internal class AppRegistrationService : IAppRegistrationService
@@ -46,7 +49,8 @@ internal class AppRegistrationService : IAppRegistrationService
 
         if (settings.SetDefaultScope)
         {
-            await _graphService.AddApiScopeAsync(application, "access_as_user", "Access as user", "Allows applications to perform requests to this client on the user's behalf.");
+            await _graphService.AddApiScopeAsync(application, "access_as_user", "Access as user", 
+                "Allows applications to perform requests to this client on the user's behalf.");
         }
 
         var finalUri = applicationUri ?? "";
@@ -59,6 +63,76 @@ internal class AppRegistrationService : IAppRegistrationService
             ObjectId = Guid.Parse(application.Id),
             Uri = finalUri,
             Scope = scope
+        };
+    }
+
+    public async Task<OperationResult<SpaAppRegistrationResult>> RegisterSpaApp(PublishSpaCommandSettings settings)
+    {
+        if (await ShouldSkipCreationAsync(settings))
+        {
+            return OperationResultStatus.AppRegistrationPreviouslyCreated;
+        }
+        
+        var application = await _graphService.CreateApplicationAsync(settings.ApplicationName, settings.SignInAudience);
+
+        if (settings.RedirectUris != null && settings.RedirectUris.Length > 0)
+        {
+            await _graphService.AddSpaRedirectUrisAsync(application, settings.RedirectUris);
+        }
+
+        return new SpaAppRegistrationResult
+        {
+            Name = settings.ApplicationName,
+            ClientId = Guid.Parse(application.AppId),
+            ObjectId = Guid.Parse(application.Id),
+        };
+    }
+
+    public async Task<OperationResult<WebAppRegistrationResult>> RegisterWebApp(PublishWebCommandSettings settings)
+    {
+        if (await ShouldSkipCreationAsync(settings))
+        {
+            return OperationResultStatus.AppRegistrationPreviouslyCreated;
+        }
+        
+        var application = await _graphService.CreateApplicationAsync(settings.ApplicationName, settings.SignInAudience);
+        
+        if (settings.RedirectUris != null && settings.RedirectUris.Length > 0)
+        {
+            await _graphService.AddWebRedirectUrisAsync(application, settings.RedirectUris);
+        }
+
+        return new WebAppRegistrationResult
+        {
+            Name = settings.ApplicationName,
+            ClientId = Guid.Parse(application.AppId),
+            ObjectId = Guid.Parse(application.Id),
+        };
+    }
+
+    public async Task<OperationResult<ConfidentialAppRegistrationResult>> RegisterConfidentialApp(PublishConfidentialCommandSettings settings)
+    {
+        if (await ShouldSkipCreationAsync(settings))
+        {
+            return OperationResultStatus.AppRegistrationPreviouslyCreated;
+        }
+        
+        var application = await _graphService.CreateApplicationAsync(settings.ApplicationName, settings.SignInAudience);
+        var secret = "";
+
+        if (settings.CreateClientSecret)
+        {
+            var expiration = settings.ClientSecretExpirationDays == 0 ? null : (DateTimeOffset?)DateTimeOffset.Now.AddDays(settings.ClientSecretExpirationDays);
+            
+            secret = await _graphService.AddClientSecretAsync(application, expiration);
+        }        
+        
+        return new ConfidentialAppRegistrationResult
+        {
+            Name = settings.ApplicationName,
+            ClientId = Guid.Parse(application.AppId),
+            ObjectId = Guid.Parse(application.Id),
+            Secret = secret
         };
     }
 

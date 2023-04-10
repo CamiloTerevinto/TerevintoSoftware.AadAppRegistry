@@ -10,12 +10,13 @@ internal interface IGraphClientService
 {
     Task AddApiScopeAsync(Application application, string scopeName, string scopeDisplayName, string scopeDescription);
     Task<string> AddClientSecretAsync(Application application, DateTimeOffset? expirationTime);
-    Task<Application> AddSpaRedirectUriAsync(Application application, Uri redirectUri);
-    Task<Application> AddWebRedirectUriAsync(Application application, Uri redirectUri);
+    Task AddSpaRedirectUrisAsync(Application application, string[] redirectUris);
+    Task AddWebRedirectUrisAsync(Application application, string[] redirectUris);
     Task<Application> CreateApplicationAsync(string displayName, SignInAudienceType signInAudienceType);
     Task<Application> GetApplicationByDisplayNameAsync(string displayName);
     Task<Application> GetApplicationByIdAsync(string clientId);
     Task SetApplicationIdUriAsync(Application application, string uri);
+    Task<bool> TryAddConsumedScopeByNameAsync(Application application, string originalAppId, string scopeName);
     Task ValidateConnectionAsync();
 }
 
@@ -119,6 +120,48 @@ internal class GraphClientService : IGraphClientService
         }
     }
 
+    public async Task AddSpaRedirectUrisAsync(Application application, string[] redirectUris)
+    {
+        application.Spa ??= new();
+        application.Spa.RedirectUris ??= new();
+
+        var redirectUrisToSet = application.Spa.RedirectUris.Union(redirectUris).ToHashSet();
+
+        if (redirectUris.Any())
+        {
+            var toUpdate = new Application
+            {
+                Spa = new SpaApplication
+                {
+                    RedirectUris = redirectUrisToSet.ToList(),
+                }
+            };
+
+            await GraphClient.Applications[application.Id].PatchAsync(toUpdate);
+        }
+    }
+
+    public async Task AddWebRedirectUrisAsync(Application application, string[] redirectUris)
+    {
+        application.Web ??= new();
+        application.Web.RedirectUris ??= new();
+
+        var redirectUrisToSet = application.Web.RedirectUris.Union(redirectUris).ToHashSet();
+
+        if (redirectUris.Any())
+        {
+            var toUpdate = new Application
+            {
+                Web = new WebApplication
+                {
+                    RedirectUris = redirectUrisToSet.ToList(),
+                }
+            };
+
+            await GraphClient.Applications[application.Id].PatchAsync(toUpdate);
+        }
+    }
+
     public async Task<string> AddClientSecretAsync(Application application, DateTimeOffset? expirationTime)
     {
         var requestBody = new AddPasswordPostRequestBody
@@ -135,33 +178,51 @@ internal class GraphClientService : IGraphClientService
         return result.SecretText;
     }
 
-    public async Task<Application> AddSpaRedirectUriAsync(Application application, Uri redirectUri)
+    public async Task<bool> TryAddConsumedScopeByNameAsync(Application application, string originalAppId, string scopeName)
     {
-        application.Spa ??= new();
-        application.Spa.RedirectUris ??= new();
+        application.RequiredResourceAccess ??= new();
 
-        if (!application.Spa.RedirectUris.Any(x => x == redirectUri.ToString()))
+        var originalApp = await GetApplicationByIdAsync(originalAppId);
+        var scopeId = originalApp.Api.Oauth2PermissionScopes.FirstOrDefault(x => x.Value == scopeName)?.Id;
+
+        if (scopeId == null)
         {
-            application.Spa.RedirectUris.Add(redirectUri.ToString());
-
-            return await GraphClient.Applications[application.Id].PatchAsync(application);
+            return false;
         }
 
-        return application;
+        return await TryAddConsumedScopeByIdAsync(application, originalAppId, scopeId.Value);
     }
 
-    public async Task<Application> AddWebRedirectUriAsync(Application application, Uri redirectUri)
+    public async Task<bool> TryAddConsumedScopeByIdAsync(Application application, string originalAppId, Guid scopeId)
     {
-        application.Web ??= new();
-        application.Web.RedirectUris ??= new();
+        application.RequiredResourceAccess ??= new();
 
-        if (!application.Web.RedirectUris.Any(x => x == redirectUri.ToString()))
+        if (application.RequiredResourceAccess.Any(x => x.ResourceAppId == originalAppId && x.ResourceAccess.Any(y => y.Id == scopeId)))
         {
-            application.Web.RedirectUris.Add(redirectUri.ToString());
-
-            return await GraphClient.Applications[application.Id].PatchAsync(application);
+            return true;
         }
 
-        return application;
+        var updatedApp = new Application
+        {
+            RequiredResourceAccess = new()
+            {
+                new()
+                {
+                    ResourceAppId = originalAppId,
+                    ResourceAccess = new()
+                    {
+                        new()
+                        {
+                            Id = scopeId,
+                            Type = "Scope",
+                        }
+                    }
+                }
+            }
+        };
+
+        await GraphClient.Applications[application.Id].PatchAsync(updatedApp);
+
+        return true;
     }
 }

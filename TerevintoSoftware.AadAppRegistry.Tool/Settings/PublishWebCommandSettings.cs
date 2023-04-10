@@ -3,7 +3,7 @@ using System.ComponentModel;
 
 namespace TerevintoSoftware.AadAppRegistry.Tool.Settings;
 
-public class PublishWebCommandSettings : PublishClientCommandSettings
+public class PublishWebCommandSettings : PublishCommandSettings
 {
     [CommandOption("--redirect-uris")]
     [Description("The redirect URIs that are valid for this client")]

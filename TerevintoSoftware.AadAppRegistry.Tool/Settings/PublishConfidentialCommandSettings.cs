@@ -3,7 +3,7 @@ using System.ComponentModel;
 
 namespace TerevintoSoftware.AadAppRegistry.Tool.Settings;
 
-public class PublishConfidentialCommandSettings : PublishClientCommandSettings
+public class PublishConfidentialCommandSettings : PublishCommandSettings
 {
     [CommandOption("--with-client-secret")]
     [Description("Creates a client secret")]

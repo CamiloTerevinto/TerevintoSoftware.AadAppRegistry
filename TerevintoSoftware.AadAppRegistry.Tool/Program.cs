@@ -60,19 +60,19 @@ app.Configure(appConfiguration =>
             .WithExample(new[] { "publish", "api", "Some.Name.Api", "--set-app-uri", "https://contoso.onmicrosoft.com/Some.Name.Api", "--access-as-user" });
 
         publish.AddCommand<PublishWebAppCommand>("web")
-            .WithDescription("[[Implicit/Hybrid mode]] Publishes a classic Web (server-side frameworks) app registration")
-            .WithExample(new[] { "publish", "web", "Some.Name.Web", "--redirect-uris", "http://localhost:1234/oauth2/redirect", "--consumed-scopes", "api://{ClientId}/.default" })
-            .WithExample(new[] { "publish", "web", "Some.Name.Web", "--redirect-uris", "http://localhost:1234/oauth2/redirect", "--consumed-scopes", "https://contoso.onmicrosoft.com/.default" });
+            .WithDescription("[[Implicit/Hybrid]] Publishes a classic Web (server-side frameworks) app registration")
+            .WithExample(new[] { "publish", "web", "Some.Name.Web", "--redirect-uris", "http://localhost:1234/oauth2/redirect" })
+            .WithExample(new[] { "publish", "web", "Some.Name.Web", "--redirect-uris", "http://localhost:1234/oauth2/redirect" });
 
         publish.AddCommand<PublishSpaAppCommand>("spa")
             .WithDescription("[[PKCE]] Publishes an SPA (client-side frameworks) app registration")
-            .WithExample(new[] { "publish", "spa", "Some.Name.Spa", "--redirect-uris", "http://localhost:1234/oauth2/redirect", "--consumed-scopes", "api://{ClientId}/.default" })
-            .WithExample(new[] { "publish", "spa", "Some.Name.Spa", "--redirect-uris", "http://localhost:1234/oauth2/redirect", "--consumed-scopes", "https://contoso.onmicrosoft.com/.default" });
+            .WithExample(new[] { "publish", "spa", "Some.Name.Spa", "--redirect-uris", "http://localhost:1234/oauth2/redirect" })
+            .WithExample(new[] {"publish", "spa", "Some.Name.Spa", "--redirect-uris", "http://localhost:1234/oauth2/redirect" });
 
         publish.AddCommand<PublishConfidentialAppCommand>("confidential")
             .WithDescription("[[Client Credentials]] Publishes a confidential app registration")
-            .WithExample(new[] { "publish", "confidential", "Some.Name.Confidential", "--with-client-secret", "--consumed-scopes", "api://{ClientId}/.default" })
-            .WithExample(new[] { "publish", "confidential", "Some.Name.Confidential", "--with-client-secret", "--consumed-scopes", "https://contoso.onmicrosoft.com/.default" });
+            .WithExample(new[] { "publish", "confidential", "Some.Name.Confidential", "--with-client-secret" })
+            .WithExample(new[] { "publish", "confidential", "Some.Name.Confidential", "--with-client-secret" });
     });
 });
 

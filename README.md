@@ -62,10 +62,11 @@ Applications can be created using one of the following commands:
 * `publish web`
 * `publish spa`
 * `publish confidential`
+* `publish native`
 
-**Note**: As of release 0.1.0, only the `publish api` command is supported. The rest of the commands are under development.
+**Note**: support for native applications is not yet implemented as of release 0.3.0.
 
-### 3.3 Sample command
+### 3.4 Sample commands
 
 If you run the following: 
 
