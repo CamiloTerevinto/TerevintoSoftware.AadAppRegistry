@@ -12,7 +12,8 @@ internal static class Startup
             .AddSingleton<IConfigurationService, ConfigurationService>()
             .AddSingleton<IGraphServiceClientFactory, GraphServiceClientFactory>()
             .AddSingleton<IGraphClientService, GraphClientService>()
-            .AddSingleton<IAppRegistrationService, AppRegistrationService>();
+            .AddSingleton<IAppRegistrationService, AppRegistrationService>()
+            .AddSingleton<IAppConfigurationService, AppConfigurationService>();
 
         return new TypeRegistrar(services);
     }

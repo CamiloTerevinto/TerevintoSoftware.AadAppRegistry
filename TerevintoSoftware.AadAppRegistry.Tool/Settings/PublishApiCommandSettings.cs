@@ -20,12 +20,12 @@ public class PublishApiCommandSettings : PublishCommandSettings
 
     public override ValidationResult Validate()
     {
-        if (SetDefaultScope && !string.IsNullOrEmpty(ApplicationUri))
+        if (SetDefaultApplicationUri && !string.IsNullOrEmpty(ApplicationUri))
         {
-            return ValidationResult.Error("Passing both --set-default-uri and --app-uri is not supported.");
+            return ValidationResult.Error("You can only specify one of --set-default-uri or --app-uri.");            
         }
 
-        if (!SetDefaultScope && string.IsNullOrEmpty(ApplicationUri) && SetDefaultScope)
+        if (!SetDefaultApplicationUri && string.IsNullOrEmpty(ApplicationUri) && SetDefaultScope)
         {
             return ValidationResult.Error("Setting the access_as_user scope requires the app uri to be set with --set-default-uri or --app-uri.");
         }

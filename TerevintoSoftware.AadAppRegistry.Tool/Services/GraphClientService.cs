@@ -8,15 +8,17 @@ namespace TerevintoSoftware.AadAppRegistry.Tool.Services;
 
 internal interface IGraphClientService
 {
+    Task AddConsumedScopeByIdAsync(Application application, string originalAppId, Guid scopeId);
     Task AddApiScopeAsync(Application application, string scopeName, string scopeDisplayName, string scopeDescription);
     Task<string> AddClientSecretAsync(Application application, DateTimeOffset? expirationTime);
+    Task AddNativeRedirectUrisAsync(Application application, string[] redirectUris);
     Task AddSpaRedirectUrisAsync(Application application, string[] redirectUris);
     Task AddWebRedirectUrisAsync(Application application, string[] redirectUris);
     Task<Application> CreateApplicationAsync(string displayName, SignInAudienceType signInAudienceType);
     Task<Application> GetApplicationByDisplayNameAsync(string displayName);
     Task<Application> GetApplicationByIdAsync(string clientId);
+    Task<Application> GetApplicationByIdOrNameAsync(string clientIdOrDisplayName);
     Task SetApplicationIdUriAsync(Application application, string uri);
-    Task<bool> TryAddConsumedScopeByNameAsync(Application application, string originalAppId, string scopeName);
     Task ValidateConnectionAsync();
 }
 
@@ -42,12 +44,19 @@ internal class GraphClientService : IGraphClientService
         AnsiConsole.MarkupLine($"[bold green]Success:[/] connection to Microsoft Graph was successful.");
     }
 
+    public async Task<Application> GetApplicationByIdOrNameAsync(string clientIdOrDisplayName)
+    {
+        return await GetApplicationByIdAsync(clientIdOrDisplayName) ?? await GetApplicationByDisplayNameAsync(clientIdOrDisplayName);
+    }
+
     public async Task<Application> GetApplicationByIdAsync(string clientId)
     {
         var apps = await GraphClient.Applications.GetAsync(r =>
         {
             r.QueryParameters.Filter = $"appId eq '{clientId}'";
             r.QueryParameters.Top = 1;
+            r.Headers.Add("ConsistencyLevel", "eventual");
+            r.QueryParameters.Count = true;
         });
 
         return apps.Value.Count == 1 ? apps.Value[0] : null;
@@ -162,6 +171,27 @@ internal class GraphClientService : IGraphClientService
         }
     }
 
+    public async Task AddNativeRedirectUrisAsync(Application application, string[] redirectUris)
+    {
+        application.PublicClient ??= new();
+        application.PublicClient.RedirectUris ??= new();
+
+        var redirectUrisToSet = application.PublicClient.RedirectUris.Union(redirectUris).ToHashSet();
+
+        if (redirectUris.Any())
+        {
+            var toUpdate = new Application
+            {
+                PublicClient = new PublicClientApplication
+                {
+                    RedirectUris = redirectUrisToSet.ToList(),
+                }
+            };
+
+            await GraphClient.Applications[application.Id].PatchAsync(toUpdate);
+        }
+    }
+
     public async Task<string> AddClientSecretAsync(Application application, DateTimeOffset? expirationTime)
     {
         var requestBody = new AddPasswordPostRequestBody
@@ -178,28 +208,13 @@ internal class GraphClientService : IGraphClientService
         return result.SecretText;
     }
 
-    public async Task<bool> TryAddConsumedScopeByNameAsync(Application application, string originalAppId, string scopeName)
-    {
-        application.RequiredResourceAccess ??= new();
-
-        var originalApp = await GetApplicationByIdAsync(originalAppId);
-        var scopeId = originalApp.Api.Oauth2PermissionScopes.FirstOrDefault(x => x.Value == scopeName)?.Id;
-
-        if (scopeId == null)
-        {
-            return false;
-        }
-
-        return await TryAddConsumedScopeByIdAsync(application, originalAppId, scopeId.Value);
-    }
-
-    public async Task<bool> TryAddConsumedScopeByIdAsync(Application application, string originalAppId, Guid scopeId)
+    public async Task AddConsumedScopeByIdAsync(Application application, string originalAppId, Guid scopeId)
     {
         application.RequiredResourceAccess ??= new();
 
         if (application.RequiredResourceAccess.Any(x => x.ResourceAppId == originalAppId && x.ResourceAccess.Any(y => y.Id == scopeId)))
         {
-            return true;
+            return;
         }
 
         var updatedApp = new Application
@@ -222,7 +237,5 @@ internal class GraphClientService : IGraphClientService
         };
 
         await GraphClient.Applications[application.Id].PatchAsync(updatedApp);
-
-        return true;
     }
 }

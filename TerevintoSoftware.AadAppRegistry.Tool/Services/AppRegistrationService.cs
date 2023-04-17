@@ -9,6 +9,7 @@ internal interface IAppRegistrationService
 {
     Task<OperationResult<ApiAppRegistrationResult>> RegisterApiApp(PublishApiCommandSettings settings);
     Task<OperationResult<ConfidentialAppRegistrationResult>> RegisterConfidentialApp(PublishConfidentialCommandSettings settings);
+    Task<OperationResult<NativeAppRegistrationResult>> RegisterNativeApp(PublishNativeCommandSettings settings);
     Task<OperationResult<SpaAppRegistrationResult>> RegisterSpaApp(PublishSpaCommandSettings settings);
     Task<OperationResult<WebAppRegistrationResult>> RegisterWebApp(PublishWebCommandSettings settings);
 }
@@ -81,6 +82,28 @@ internal class AppRegistrationService : IAppRegistrationService
         }
 
         return new SpaAppRegistrationResult
+        {
+            Name = settings.ApplicationName,
+            ClientId = Guid.Parse(application.AppId),
+            ObjectId = Guid.Parse(application.Id),
+        };
+    }
+
+    public async Task<OperationResult<NativeAppRegistrationResult>> RegisterNativeApp(PublishNativeCommandSettings settings)
+    {
+        if (await ShouldSkipCreationAsync(settings))
+        {
+            return OperationResultStatus.AppRegistrationPreviouslyCreated;
+        }
+
+        var application = await _graphService.CreateApplicationAsync(settings.ApplicationName, settings.SignInAudience);
+
+        if (settings.RedirectUris != null && settings.RedirectUris.Length > 0)
+        {
+            await _graphService.AddNativeRedirectUrisAsync(application, settings.RedirectUris);
+        }
+
+        return new NativeAppRegistrationResult
         {
             Name = settings.ApplicationName,
             ClientId = Guid.Parse(application.AppId),
