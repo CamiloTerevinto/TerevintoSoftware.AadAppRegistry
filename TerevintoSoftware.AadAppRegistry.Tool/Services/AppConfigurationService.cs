@@ -9,6 +9,7 @@ namespace TerevintoSoftware.AadAppRegistry.Tool.Services;
 internal interface IAppConfigurationService
 {
     Task<OperationResultStatus> AddAppScopeAsync(ConfigureAppAddScopeSettings settings);
+    Task<OperationResultStatus> DeleteAppAsync(DeleteAppSettings settings);
 }
 
 internal class AppConfigurationService : IAppConfigurationService
@@ -49,6 +50,21 @@ internal class AppConfigurationService : IAppConfigurationService
         await _graphService.AddConsumedScopeByIdAsync(application, api.AppId, scope.Id.Value);
 
         AnsiConsole.MarkupLine("[bold green]Success:[/] the scope was added to the application. Note that you need to grant admin approval for the scope.");
+
+        return OperationResultStatus.Success;
+    }
+
+    public async Task<OperationResultStatus> DeleteAppAsync(DeleteAppSettings settings)
+    {
+        var application = await _graphService.GetApplicationByIdOrNameAsync(settings.ApplicationName);
+        if (application == null)
+        {
+            AnsiConsole.MarkupLine("[bold red]Error:[/] the application Id provided could not be found");
+            return OperationResultStatus.Failed;
+        }
+
+        await _graphService.DeleteApplicationAsync(application);
+        AnsiConsole.MarkupLine("[bold green]Success:[/] the application was deleted.");
 
         return OperationResultStatus.Success;
     }

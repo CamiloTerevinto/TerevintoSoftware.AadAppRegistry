@@ -22,3 +22,4 @@
 
 **/*.txt
 /.vs
+/TerevintoSoftware.AadAppRegistry.Tool/Properties/launchSettings.json

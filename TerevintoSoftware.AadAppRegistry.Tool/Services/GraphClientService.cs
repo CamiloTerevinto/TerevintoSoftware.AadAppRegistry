@@ -20,6 +20,7 @@ internal interface IGraphClientService
     Task<Application> GetApplicationByIdOrNameAsync(string clientIdOrDisplayName);
     Task SetApplicationIdUriAsync(Application application, string uri);
     Task ValidateConnectionAsync();
+    Task DeleteApplicationAsync(Application application);
 }
 
 internal class GraphClientService : IGraphClientService
@@ -237,5 +238,10 @@ internal class GraphClientService : IGraphClientService
         };
 
         await GraphClient.Applications[application.Id].PatchAsync(updatedApp);
+    }
+
+    public async Task DeleteApplicationAsync(Application application)
+    {
+        await GraphClient.Applications[application.Id].DeleteAsync();
     }
 }

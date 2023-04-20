@@ -8,7 +8,7 @@ namespace TerevintoSoftware.AadAppRegistry.Tool.Services;
 internal interface IAppRegistrationService
 {
     Task<OperationResult<ApiAppRegistrationResult>> RegisterApiApp(PublishApiCommandSettings settings);
-    Task<OperationResult<ConfidentialAppRegistrationResult>> RegisterConfidentialApp(PublishConfidentialCommandSettings settings);
+    Task<OperationResult<ConfidentialAppRegistrationResult>> RegisterConfidentialAppAsync(PublishConfidentialCommandSettings settings);
     Task<OperationResult<NativeAppRegistrationResult>> RegisterNativeApp(PublishNativeCommandSettings settings);
     Task<OperationResult<SpaAppRegistrationResult>> RegisterSpaApp(PublishSpaCommandSettings settings);
     Task<OperationResult<WebAppRegistrationResult>> RegisterWebApp(PublishWebCommandSettings settings);
@@ -133,7 +133,7 @@ internal class AppRegistrationService : IAppRegistrationService
         };
     }
 
-    public async Task<OperationResult<ConfidentialAppRegistrationResult>> RegisterConfidentialApp(PublishConfidentialCommandSettings settings)
+    public async Task<OperationResult<ConfidentialAppRegistrationResult>> RegisterConfidentialAppAsync(PublishConfidentialCommandSettings settings)
     {
         if (await ShouldSkipCreationAsync(settings))
         {

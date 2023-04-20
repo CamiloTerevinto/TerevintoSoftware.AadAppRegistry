@@ -12,7 +12,7 @@ app.Configure(configurator =>
 {
     configurator
         .SetApplicationName("AadAppRegistry")
-        .SetApplicationVersion("0.0.1");
+        .SetApplicationVersion("0.5.0");
 
     configurator.SetExceptionHandler(ex =>
     {
@@ -36,7 +36,7 @@ app.Configure(configurator =>
     {
         configureBranch.SetDescription("Allows you to change the configuration used for subsequent commands.");
 
-        configureBranch.AddCommand<ConfigureModeCommand>("mode")
+        configureBranch.AddCommand<ConfigureGeneralSettingsCommand>("mode")
             .WithDescription("Configures the mode (AAD or B2C) to use for app registrations.")
             .WithExample(new[] { "configure", "mode", "--use-b2c", "false" });
 
@@ -69,7 +69,9 @@ app.Configure(configurator =>
 
         publishBranch.AddCommand<PublishConfidentialAppCommand>("confidential")
             .WithDescription("[[Client Credentials]] Publishes a confidential app registration")
-            .WithExample(new[] { "publish", "confidential", "Some.Name.Confidential", "--with-client-secret" });
+            .WithExample(new[] { "publish", "confidential", "Some.Name.Confidential", "-s", "-e", "180" })
+            .WithExample(new[] { "publish", "confidential", "Some.Name.Confidential", "-s", "-k", "https://{YOUR_VAULT_NAME}.vault.azure.net/", "--dots-as-dashes" })
+            .WithExample(new[] { "publish", "confidential", "Some.Name.Confidential", "-s", "-k", "https://{YOUR_VAULT_NAME}.vault.azure.net/", "-n", "some-name-confidential-secret" });
 
         publishBranch.AddCommand<PublishNativeAppCommand>("native")
             .WithDescription("[[Device Code]] Publishes a native (desktop/mobile) app registration")
@@ -84,6 +86,11 @@ app.Configure(configurator =>
             .WithDescription("Adds a scope to the application provided")
             .WithExample(new[] { "app", "add-scope", "65cc525e-9959-461c-b42e-f2fb90fcd73f", "--api-app-id", "65cc525e-9959-461c-abcd-f2fb90fcd73f", "--scope-name", "test" })
             .WithExample(new[] { "app", "add-scope", "Some.Web.App", "--api-app-id", "Some.Api.App", "--scope-name", "test" });
+
+        appBranch.AddCommand<AppDeleteCommand>("delete")
+            .WithDescription("Deletes an application")
+            .WithExample(new[] { "app", "delete", "65cc525e-9959-461c-b42e-f2fb90fcd73f", "-y" })
+            .WithExample(new[] { "app", "delete", "Some.Web.App", "-y" });
     });
 });
 
