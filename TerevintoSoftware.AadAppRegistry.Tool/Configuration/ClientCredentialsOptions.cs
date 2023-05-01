@@ -1,5 +1,8 @@
-﻿namespace TerevintoSoftware.AadAppRegistry.Tool.Configuration;
+﻿using System.Diagnostics.CodeAnalysis;
 
+namespace TerevintoSoftware.AadAppRegistry.Tool.Configuration;
+
+[ExcludeFromCodeCoverage]
 public class ClientCredentialsOptions
 {
     public string TenantId { get; set; }

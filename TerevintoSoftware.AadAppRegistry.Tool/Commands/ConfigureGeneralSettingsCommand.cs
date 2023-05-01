@@ -7,6 +7,7 @@ using TerevintoSoftware.AadAppRegistry.Tool.Settings;
 
 namespace TerevintoSoftware.AadAppRegistry.Tool.Commands;
 
+[ExcludeFromCodeCoverage]
 internal class ConfigureGeneralSettingsCommand : Command<GeneralConfigurationCommandSettings>
 {
     private readonly IConfigurationService _configurationService;

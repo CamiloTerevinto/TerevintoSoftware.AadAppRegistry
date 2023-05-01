@@ -1,8 +1,10 @@
 ﻿using Spectre.Console.Cli;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TerevintoSoftware.AadAppRegistry.Tool.Settings;
 
+[ExcludeFromCodeCoverage]
 public class GeneralConfigurationCommandSettings : CommandSettings
 {
     [CommandOption("--use-b2c")]

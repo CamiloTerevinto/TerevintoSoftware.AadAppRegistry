@@ -1,9 +1,11 @@
 ﻿using Spectre.Console;
 using Spectre.Console.Cli;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TerevintoSoftware.AadAppRegistry.Tool.Settings;
 
+[ExcludeFromCodeCoverage]
 public class ClientCredentialsSettings : CommandSettings
 {
     [CommandOption("-t|--tenant-id")]

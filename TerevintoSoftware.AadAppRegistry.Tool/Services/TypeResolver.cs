@@ -1,9 +1,11 @@
 ﻿// Taken with gratitude from sprectreconsole/sprectre.console
 
 using Spectre.Console.Cli;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TerevintoSoftware.AadAppRegistry.Tool.Services;
 
+[ExcludeFromCodeCoverage]
 internal sealed class TypeResolver : ITypeResolver, IDisposable
 {
     private readonly IServiceProvider _provider;

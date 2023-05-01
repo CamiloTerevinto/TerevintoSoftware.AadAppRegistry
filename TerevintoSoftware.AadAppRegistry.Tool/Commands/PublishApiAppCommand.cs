@@ -1,6 +1,7 @@
 ﻿using Spectre.Console;
 using Spectre.Console.Cli;
 using Spectre.Console.Json;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using TerevintoSoftware.AadAppRegistry.Tool.Services;
 using TerevintoSoftware.AadAppRegistry.Tool.Settings;
@@ -8,6 +9,7 @@ using TerevintoSoftware.AadAppRegistry.Tool.Utilities;
 
 namespace TerevintoSoftware.AadAppRegistry.Tool.Commands;
 
+[ExcludeFromCodeCoverage]
 internal class PublishApiAppCommand : AsyncCommand<PublishApiCommandSettings>
 {
     private readonly IAppRegistrationService _appRegistrationService;

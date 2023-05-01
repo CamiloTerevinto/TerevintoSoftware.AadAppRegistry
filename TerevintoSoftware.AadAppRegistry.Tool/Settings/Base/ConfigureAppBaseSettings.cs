@@ -1,9 +1,11 @@
 ﻿using Spectre.Console;
 using Spectre.Console.Cli;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TerevintoSoftware.AadAppRegistry.Tool.Settings.Base;
 
+[ExcludeFromCodeCoverage]
 public abstract class ConfigureAppBaseSettings : CommandSettings
 {
     [CommandArgument(0, "[APP]")]

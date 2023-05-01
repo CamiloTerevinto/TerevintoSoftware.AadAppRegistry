@@ -7,6 +7,7 @@ using TerevintoSoftware.AadAppRegistry.Tool.Settings;
 
 namespace TerevintoSoftware.AadAppRegistry.Tool.Commands;
 
+[ExcludeFromCodeCoverage]
 internal class ConfigureCredentialsCommand : Command<ClientCredentialsSettings>
 {
     private readonly IConfigurationService _configurationService;

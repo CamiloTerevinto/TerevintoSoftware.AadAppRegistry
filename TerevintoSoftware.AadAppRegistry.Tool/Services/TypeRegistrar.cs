@@ -3,9 +3,11 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Spectre.Console.Cli;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TerevintoSoftware.AadAppRegistry.Tool.Services;
 
+[ExcludeFromCodeCoverage]
 internal sealed class TypeRegistrar : ITypeRegistrar
 {
     private readonly IServiceCollection _builder;

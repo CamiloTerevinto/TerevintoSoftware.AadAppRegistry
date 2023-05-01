@@ -1,8 +1,10 @@
 ﻿using Spectre.Console.Cli;
+using System.Diagnostics.CodeAnalysis;
 using TerevintoSoftware.AadAppRegistry.Tool.Services;
 
 namespace TerevintoSoftware.AadAppRegistry.Tool.Commands;
 
+[ExcludeFromCodeCoverage]
 internal class ValidateCommand : AsyncCommand
 {
     private readonly IGraphClientService _appRegistrationsGraphService;

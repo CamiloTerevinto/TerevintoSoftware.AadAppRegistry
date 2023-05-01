@@ -1,5 +1,8 @@
-﻿namespace TerevintoSoftware.AadAppRegistry.Tool.Utilities;
+﻿using System.Diagnostics.CodeAnalysis;
 
+namespace TerevintoSoftware.AadAppRegistry.Tool.Utilities;
+
+[ExcludeFromCodeCoverage]
 public class OperationResult<T>
 {
     public T Data { get; }

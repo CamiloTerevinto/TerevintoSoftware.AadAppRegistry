@@ -1,11 +1,13 @@
 ﻿using Spectre.Console;
 using Spectre.Console.Cli;
+using System.Diagnostics.CodeAnalysis;
 using TerevintoSoftware.AadAppRegistry.Tool.Services;
 using TerevintoSoftware.AadAppRegistry.Tool.Settings;
 using TerevintoSoftware.AadAppRegistry.Tool.Utilities;
 
 namespace TerevintoSoftware.AadAppRegistry.Tool.Commands;
 
+[ExcludeFromCodeCoverage]
 internal class AppDeleteCommand : AsyncCommand<DeleteAppSettings>
 {
     private readonly IAppConfigurationService _appConfigurationService;

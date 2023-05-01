@@ -1,5 +1,8 @@
-﻿namespace TerevintoSoftware.AadAppRegistry.Tool.Configuration;
+﻿using System.Diagnostics.CodeAnalysis;
 
+namespace TerevintoSoftware.AadAppRegistry.Tool.Configuration;
+
+[ExcludeFromCodeCoverage]
 public class AppRegistryConfiguration
 {
     public ClientCredentialsOptions ClientCredentials { get; set; }
