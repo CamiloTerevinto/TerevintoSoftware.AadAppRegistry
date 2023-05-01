@@ -2,7 +2,7 @@
 using Spectre.Console.Cli;
 using System.ComponentModel;
 
-namespace TerevintoSoftware.AadAppRegistry.Tool.Settings;
+namespace TerevintoSoftware.AadAppRegistry.Tool.Settings.Base;
 
 public abstract class ConfigureAppBaseSettings : CommandSettings
 {

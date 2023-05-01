@@ -10,6 +10,6 @@ public class GeneralConfigurationCommandSettings : CommandSettings
     public bool UseB2CMode { get; init; }
 
     [CommandOption("-t|--tenant-name")]
-    [Description("The name of the tenant to use for B2C mode (without .onmicrosoft.com)")]
+    [Description("The name of the tenant to use for B2C mode. Examples: contoso.onmicrosoft.com | login.contoso.com")]
     public string TenantName { get; init; }
 }

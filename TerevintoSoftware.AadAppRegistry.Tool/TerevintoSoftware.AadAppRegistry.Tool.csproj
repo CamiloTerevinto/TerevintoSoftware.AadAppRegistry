@@ -28,6 +28,10 @@ Read the README in the GitHub project for information on usage.
 	</PropertyGroup>
 
 	<ItemGroup>
+		<InternalsVisibleTo Include="TerevintoSoftware.AadAppRegistry.Tests" />
+	</ItemGroup>
+	
+	<ItemGroup>
 		<None Include="..\README.md">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
@@ -39,7 +43,7 @@ Read the README in the GitHub project for information on usage.
 		<PackageReference Include="Azure.Security.KeyVault.Secrets" Version="4.5.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="7.0.0" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
-		<PackageReference Include="Microsoft.Graph" Version="5.6.0" />
+		<PackageReference Include="Microsoft.Graph" Version="5.8.0" />
 		<PackageReference Include="Spectre.Console.Cli" Version="0.46.0" />
 		<PackageReference Include="Spectre.Console.Json" Version="0.46.0" />
 	</ItemGroup>

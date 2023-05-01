@@ -1,6 +1,8 @@
-﻿using TerevintoSoftware.AadAppRegistry.Tool.Configuration;
+﻿using Spectre.Console;
+using TerevintoSoftware.AadAppRegistry.Tool.Configuration;
 using TerevintoSoftware.AadAppRegistry.Tool.Models;
 using TerevintoSoftware.AadAppRegistry.Tool.Settings;
+using TerevintoSoftware.AadAppRegistry.Tool.Settings.Base;
 using TerevintoSoftware.AadAppRegistry.Tool.Utilities;
 
 namespace TerevintoSoftware.AadAppRegistry.Tool.Services;
@@ -17,11 +19,13 @@ internal interface IAppRegistrationService
 internal class AppRegistrationService : IAppRegistrationService
 {
     private readonly IGraphClientService _graphService;
+    private readonly IKeyVaultClientService _keyVaultClientService;
     private readonly AppRegistryConfiguration _appRegistryConfiguration;
 
-    public AppRegistrationService(IGraphClientService graphService, IConfigurationService configurationService)
+    public AppRegistrationService(IGraphClientService graphService, IConfigurationService configurationService, IKeyVaultClientService keyVaultClientService)
     {
         _graphService = graphService;
+        _keyVaultClientService = keyVaultClientService;
         _appRegistryConfiguration = configurationService.Load();
     }
 
@@ -39,7 +43,7 @@ internal class AppRegistrationService : IAppRegistrationService
         if (string.IsNullOrEmpty(applicationUri) && settings.SetDefaultApplicationUri)
         {
             applicationUri = _appRegistryConfiguration.OperatingMode == OperatingMode.AzureB2C ?
-                $"https://{_appRegistryConfiguration.TenantName}.onmicrosoft.com/{application.AppId}" :
+                $"https://{_appRegistryConfiguration.TenantName}/{application.AppId}" :
                 $"api://{application.AppId}";
         }
 
@@ -146,17 +150,21 @@ internal class AppRegistrationService : IAppRegistrationService
         if (settings.CreateClientSecret)
         {
             var expiration = settings.ClientSecretExpirationDays == 0 ? null : (DateTimeOffset?)DateTimeOffset.Now.AddDays(settings.ClientSecretExpirationDays);
-            
+
             secret = await _graphService.AddClientSecretAsync(application, expiration);
-        }        
-        
-        return new ConfidentialAppRegistrationResult
+        }
+
+        var result = new ConfidentialAppRegistrationResult
         {
             Name = settings.ApplicationName,
             ClientId = Guid.Parse(application.AppId),
             ObjectId = Guid.Parse(application.Id),
             Secret = secret
         };
+
+        var keyVaultStatus = await PushSecretToKeyVaultAsync(settings, result);
+        
+        return new OperationResult<ConfidentialAppRegistrationResult>(result, keyVaultStatus);
     }
 
     /// <summary>
@@ -164,7 +172,7 @@ internal class AppRegistrationService : IAppRegistrationService
     /// </summary>
     /// <param name="publishCommandSettings">The base settings for the application</param>
     /// <returns>True if creation should be skipped; false otherwise.</returns>
-    private async Task<bool> ShouldSkipCreationAsync(PublishCommandSettings publishCommandSettings)
+    private async Task<bool> ShouldSkipCreationAsync(PublishCommandBaseSettings publishCommandSettings)
     {
         if (publishCommandSettings.DisableDuplicateCheck)
         {
@@ -174,5 +182,28 @@ internal class AppRegistrationService : IAppRegistrationService
         var app = await _graphService.GetApplicationByDisplayNameAsync(publishCommandSettings.ApplicationName);
 
         return app != null;
+    }
+
+    private async Task<OperationResultStatus> PushSecretToKeyVaultAsync(PublishConfidentialCommandSettings settings, ConfidentialAppRegistrationResult result)
+    {
+        if (result.Secret == null || string.IsNullOrEmpty(settings.KeyVaultUri))
+        {
+            return OperationResultStatus.Success;
+        }
+
+        try
+        {
+            var expirationDate = DateTime.UtcNow.Date.AddDays(settings.ClientSecretExpirationDays);
+            var secretUri = await _keyVaultClientService.PushClientSecretAsync(new Uri(settings.KeyVaultUri), settings.SecretName, result.Secret, expirationDate);
+            result.Secret = secretUri.ToString();
+
+            return OperationResultStatus.Success;
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.MarkupLine($"[bold red]Error:[/] while the application was registered, pushing the secret to Key Vault failed: {ex.Message}.");
+
+            return OperationResultStatus.Failed;
+        }
     }
 }

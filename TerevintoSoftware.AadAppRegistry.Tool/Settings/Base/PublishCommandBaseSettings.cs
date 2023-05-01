@@ -2,9 +2,9 @@
 using Spectre.Console.Cli;
 using System.ComponentModel;
 
-namespace TerevintoSoftware.AadAppRegistry.Tool.Settings;
+namespace TerevintoSoftware.AadAppRegistry.Tool.Settings.Base;
 
-public abstract class PublishCommandSettings : CommandSettings
+public abstract class PublishCommandBaseSettings : CommandSettings
 {
     [CommandArgument(0, "[APP_NAME]")]
     [Description("The name of the application")]

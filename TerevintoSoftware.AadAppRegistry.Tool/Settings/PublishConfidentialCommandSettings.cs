@@ -2,10 +2,11 @@
 using Spectre.Console.Cli;
 using System.ComponentModel;
 using System.Text.RegularExpressions;
+using TerevintoSoftware.AadAppRegistry.Tool.Settings.Base;
 
 namespace TerevintoSoftware.AadAppRegistry.Tool.Settings;
 
-public partial class PublishConfidentialCommandSettings : PublishCommandSettings
+public partial class PublishConfidentialCommandSettings : PublishCommandBaseSettings
 {
     [CommandOption("-s|--with-client-secret")]
     [Description("Creates a client secret")]
@@ -34,14 +35,23 @@ public partial class PublishConfidentialCommandSettings : PublishCommandSettings
             return ValidationResult.Error("The key vault URI is not valid.");
         }
 
-        if (ClientSecretExpirationDays < 2)
+        if (ClientSecretExpirationDays != 0 && ClientSecretExpirationDays < 2)
         {
             return ValidationResult.Error("The client secret expiration days must be greater than 1.");
         }
-
-        if (string.IsNullOrEmpty(SecretName))
+        else if (ClientSecretExpirationDays == 0)
         {
-            SecretName = ApplicationName.Replace(".", "-");
+            ClientSecretExpirationDays = 180;
+        }
+
+        if (string.IsNullOrEmpty(SecretName)) 
+        {
+            SecretName = ApplicationName;
+
+            if (DotsAsDashes)
+            {
+                SecretName = SecretName.Replace(".", "-");
+            }
         }
 
         // check if the secret name is valid according to the Key Vault naming rules

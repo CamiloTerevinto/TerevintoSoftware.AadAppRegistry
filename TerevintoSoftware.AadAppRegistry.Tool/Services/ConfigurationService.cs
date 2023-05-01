@@ -47,7 +47,7 @@ internal class ConfigurationService : IConfigurationService
             throw new InvalidCredentialsException();
         }
 
-        return new ClientSecretCredential(clientCredentials.TenantId,
+        return new(clientCredentials.TenantId,
             clientCredentials.ClientId, clientCredentials.ClientSecret);
     }
 }

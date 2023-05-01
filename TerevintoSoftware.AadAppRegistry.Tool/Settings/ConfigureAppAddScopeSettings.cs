@@ -1,6 +1,7 @@
 ﻿using Spectre.Console;
 using Spectre.Console.Cli;
 using System.ComponentModel;
+using TerevintoSoftware.AadAppRegistry.Tool.Settings.Base;
 
 namespace TerevintoSoftware.AadAppRegistry.Tool.Settings;
 

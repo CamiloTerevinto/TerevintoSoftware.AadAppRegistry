@@ -1,10 +1,11 @@
 ﻿using Spectre.Console;
 using Spectre.Console.Cli;
 using System.ComponentModel;
+using TerevintoSoftware.AadAppRegistry.Tool.Settings.Base;
 
 namespace TerevintoSoftware.AadAppRegistry.Tool.Settings;
 
-public class PublishApiCommandSettings : PublishCommandSettings
+public class PublishApiCommandSettings : PublishCommandBaseSettings
 {
     [CommandOption("--set-default-uri")]
     [Description("Sets the default URI for the application. AAD mode will use [bold royalblue1]api://{id}[/] while B2C mode will use [bold royalblue1]https://{tenant}.onmicrosoft.com/{id}[/].")]
