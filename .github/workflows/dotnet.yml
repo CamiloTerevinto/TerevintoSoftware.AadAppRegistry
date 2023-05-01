@@ -21,6 +21,12 @@ jobs:
 
     - name: Run automated unit tests
       run: dotnet test TerevintoSoftware.AadAppRegistry.Tests/TerevintoSoftware.AadAppRegistry.Tests.csproj /p:CollectCoverage=true /p:CoverletOutput=TestResults/ /p:CoverletOutputFormat=lcov
+      env:
+        APPREG_TESTS__TENANT_ID: ${{ secrets.APPREG_TESTS__TENANT_ID }}
+        APPREG_TESTS__CLIENT_ID: ${{ secrets.APPREG_TESTS__CLIENT_ID }}
+        APPREG_TESTS__CLIENT_SECRET: ${{ secrets.APPREG_TESTS__CLIENT_SECRET }}
+        APPREG_TESTS__TENANT_NAME: ${{ secrets.APPREG_TESTS__TENANT_NAME }}
+        APPREG_TESTS__KEYVAULT_URI: ${{ secrets.APPREG_TESTS__KEYVAULT_URI }}
         
     - name: Publish coverage report to coveralls.io   
       uses: coverallsapp/github-action@master   
