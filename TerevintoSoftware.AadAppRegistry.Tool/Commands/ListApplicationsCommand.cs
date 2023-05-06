@@ -51,14 +51,14 @@ internal class ListApplicationsCommand : AsyncCommand<ListAppsSettings>
                 app.Spa.RedirectUris.Count > 0 ? "SPA" : "",
                 app.PublicClient.RedirectUris.Count > 0 ? "Public" : "",
                 app.PasswordCredentials.Count > 0 ? 
-                   app.PasswordCredentials.All(x => x.EndDateTime > DateTime.Today) ? "[green]Confidential[/]"  : "[red]Confidential[/]"
+                   app.PasswordCredentials.All(x => x.EndDateTime > DateTime.Today) ? "Confidential ([green]active[/])"  : "Confidential ([red]expired[/])"
                 : "",
             };
 
             types = types.Where(t => t != "").ToArray();
 
             table.AddRow(new Text(app.AppId, new Style(link: $"{Constants.PortalOverviewUrl}{app.AppId}")), 
-                         new Text(app.DisplayName), new Text(string.Join("; ", types)));
+                         new Text(app.DisplayName), new Markup(string.Join("; ", types)));
         }
 
         AnsiConsole.Write(table);
