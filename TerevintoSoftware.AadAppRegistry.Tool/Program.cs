@@ -1,3 +1,3 @@
 ﻿using TerevintoSoftware.AadAppRegistry.Tool.Utilities;
 
-return Startup.RunSpecreConsole(args);
+return Startup.RunSpectreConsole(args);

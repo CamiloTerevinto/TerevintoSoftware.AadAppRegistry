@@ -7,7 +7,7 @@ using TerevintoSoftware.AadAppRegistry.Tool.Settings.Base;
 namespace TerevintoSoftware.AadAppRegistry.Tool.Settings;
 
 [ExcludeFromCodeCoverage]
-internal class ConfigureAppAddScopeSettings : ConfigureAppBaseSettings
+internal class ConfigureAppAddScopeSettings : AppBranchBaseSettings
 {
     [CommandOption("--api-app-id")]
     [Description("The Client Id or Display Name of the API to be consumed")]

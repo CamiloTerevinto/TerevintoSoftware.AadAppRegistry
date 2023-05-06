@@ -17,7 +17,8 @@
 		<Description>An opinionated .NET tool to facilitate the creation of Azure AD App Registrations.
 Read the README in the GitHub project for information on usage.
 		</Description>
-		<PackageReleaseNotes>[0.5.0]: Add support for pushing secrets to Azure Key Vault. Add support for deleting app registrations.
+		<PackageReleaseNotes>[1.0.0]: Initial GA release. Adds a number of new features and improves several commands.
+[0.5.0]: Add support for pushing secrets to Azure Key Vault. Add support for deleting app registrations.
 [0.4.0]: Add support for native client applications and for adding scopes to applications.
 [0.3.0]: Add support for web, spa, and confidential client applications.
 [0.2.0]: Change the default path to the configuration file to be the user's directory.

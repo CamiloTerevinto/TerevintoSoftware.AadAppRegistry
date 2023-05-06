@@ -12,7 +12,7 @@ namespace TerevintoSoftware.AadAppRegistry.Tool.Utilities;
 [ExcludeFromCodeCoverage]
 internal static class Startup
 {
-    internal static int RunSpecreConsole(string[] args)
+    internal static int RunSpectreConsole(string[] args)
     {
         var registrar = BuildTypeRegistrar();
         var app = new CommandApp(registrar);
@@ -21,7 +21,7 @@ internal static class Startup
         {
             configurator
                 .SetApplicationName("AadAppRegistry")
-                .SetApplicationVersion("0.5.0");
+                .SetApplicationVersion("1.0.0");
 
             configurator.SetExceptionHandler(ex =>
             {
@@ -43,7 +43,7 @@ internal static class Startup
 
             configurator.AddBranch("configure", configureBranch =>
             {
-                configureBranch.SetDescription("Allows you to change the configuration used for subsequent commands.");
+                configureBranch.SetDescription("Contains commands to change the configuration used for subsequent commands.");
 
                 configureBranch.AddCommand<ConfigureGeneralSettingsCommand>("mode")
                     .WithDescription("Configures the mode (AAD or B2C) to use for app registrations.")
@@ -61,7 +61,7 @@ internal static class Startup
 
             configurator.AddBranch("publish", publishBranch =>
             {
-                publishBranch.SetDescription("Contains commands to publish to Azure App Registrations.");
+                publishBranch.SetDescription("Contains commands to publish new applications.");
 
                 publishBranch.AddCommand<PublishApiAppCommand>("api")
                     .WithDescription("[[API]] Publishes an API app registration")
@@ -89,7 +89,12 @@ internal static class Startup
 
             configurator.AddBranch("app", appBranch =>
             {
-                appBranch.SetDescription("Allows you to update the configuration of already created applications.");
+                appBranch.SetDescription("Contains commands to work with existing applications.");
+
+                appBranch.AddCommand<ViewAppDetailsCommand>("view")
+                    .WithDescription("Shows the details of an application")
+                    .WithExample(new[] { "app", "view", "65cc525e-9959-461c-b42e-f2fb90fcd73f" })
+                    .WithExample(new[] { "app", "view", "Some.Web.App" });
 
                 appBranch.AddCommand<AppAddScopeCommand>("add-scope")
                     .WithDescription("Adds a scope to the application provided")
@@ -101,6 +106,10 @@ internal static class Startup
                     .WithExample(new[] { "app", "delete", "65cc525e-9959-461c-b42e-f2fb90fcd73f", "-y" })
                     .WithExample(new[] { "app", "delete", "Some.Web.App", "-y" });
             });
+
+            configurator.AddCommand<ListApplicationsCommand>("list")
+                .WithDescription("Lists all applications in the tenant, using the provided configuration")
+                .WithExample(new[] { "list", "--take", "50", "--order-by", "displayName" });
         });
 
         return app.Run(args);

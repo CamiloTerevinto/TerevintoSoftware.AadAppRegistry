@@ -6,9 +6,6 @@ using TerevintoSoftware.AadAppRegistry.Tool.Settings.Base;
 namespace TerevintoSoftware.AadAppRegistry.Tool.Settings;
 
 [ExcludeFromCodeCoverage]
-internal class DeleteAppSettings : AppBranchBaseSettings
+public class ViewAppDetailsSettings : AppBranchBaseSettings
 {
-    [CommandOption("-y")]
-    [Description("Skip confirmation before deletion.")]
-    public bool SuppressConfirmation { get; init; }
 }

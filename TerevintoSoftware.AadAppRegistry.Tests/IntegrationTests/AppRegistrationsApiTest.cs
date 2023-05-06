@@ -26,7 +26,7 @@ internal class AppRegistrationsApiTest
 
         var result = await registrationService.RegisterApiApp(command);
 
-        Assert.That(result.Status, Is.EqualTo(OperationResultStatus.Success));
+        Assert.That(result.Status, Is.EqualTo(ServiceOperationResultStatus.Success));
         TestContext.Out.WriteLine($"Application registered with id {result.Data.ClientId}");
         TestContext.Out.WriteLine($"Application registered with application uri {result.Data.Uri}");
         TestContext.Out.WriteLine($"Application registered with scope {result.Data.Scope}");
@@ -51,7 +51,7 @@ internal class AppRegistrationsApiTest
 
         var result = await registrationService.RegisterApiApp(command);
 
-        Assert.That(result.Status, Is.EqualTo(OperationResultStatus.Success));
+        Assert.That(result.Status, Is.EqualTo(ServiceOperationResultStatus.Success));
         TestContext.Out.WriteLine($"Application registered with id {result.Data.ClientId}");
         TestContext.Out.WriteLine($"Application registered with application uri {result.Data.Uri}");
         TestContext.Out.WriteLine($"Application registered with scope {result.Data.Scope}");

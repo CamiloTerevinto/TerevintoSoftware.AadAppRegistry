@@ -16,8 +16,6 @@ internal class ValidateCommand : AsyncCommand
 
     public override async Task<int> ExecuteAsync(CommandContext context)
     {
-        await _appRegistrationsGraphService.ValidateConnectionAsync();
-
-        return 0;
+        return await _appRegistrationsGraphService.ValidateConnectionAsync().ExecuteOperationAsync();
     }
 }

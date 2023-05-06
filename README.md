@@ -1,6 +1,6 @@
 # AppReg
 
-[![Nuget version](https://img.shields.io/nuget/v/TerevintoSoftware.AadAppRegistry.Tool)](https://www.nuget.org/packages/TerevintoSoftware.AadAppRegistry.Tool/)
+[![Nuget version](https://img.shields.io/nuget/v/TerevintoSoftware.AadAppRegistry.Tool)](https://www.nuget.org/packages/TerevintoSoftware.AadAppRegistry.Tool/) [![Coverage Status](https://coveralls.io/repos/github/CamiloTerevinto/TerevintoSoftware.AadAppRegistry/badge.svg?branch=main)](https://coveralls.io/github/CamiloTerevinto/TerevintoSoftware.AadAppRegistry?branch=main)
 
 ![Sample image of the help screen for the publish api command](https://github.com/CamiloTerevinto/TerevintoSoftware.AadAppRegistry/blob/main/assets/sample.png?raw=true)
 
@@ -52,7 +52,7 @@ There are two critical commands that you'll want to run first - `configure crede
 
 2. If you need to switch to B2C mode, run `configure mode --use-b2c`.
 
-**Note**: both `configure` commands use a json file stored in the user's directory.
+**Note**: both `configure` commands use a json file stored in the user's directory. This file is not encrypted. 
 
 ### 3.2 Creating applications
 
@@ -64,7 +64,13 @@ Applications can be created using one of the following commands:
 * `publish confidential`
 * `publish native`
 
-**Note**: support for native applications is not yet implemented as of release 0.3.0.
+
+### 3.3 Other commands
+
+* `list` - lists all applications in the tenant.
+* `app view` - shows the details of an application.
+* `app delete` - deletes an application.
+* `app add-scope` - adds an API scope to the application.
 
 ### 3.4 Sample commands
 
@@ -78,11 +84,15 @@ Assuming you are under the AAD mode, you would get an output like:
 
 ```json
 {
-   "Name": "some-test-api-client",
-   "ClientId": "2a42e61a-c75b-4f65-93ac-30d12bde9b33",
-   "ObjectId": "62ff0583-92bb-43ec-af9d-1c3ee88c8cd6",
-   "Uri": "api://2a42e61a-c75b-4f65-93ac-30d12bde9b33",
-   "Scope": "api://2a42e61a-c75b-4f65-93ac-30d12bde9b33/access_as_user"
+   "Success": true,
+   "Status": "Success",
+   "Data": {
+       "Name": "some-test-api-client",
+       "ClientId": "2a42e61a-c75b-4f65-93ac-30d12bde9b33",
+       "ObjectId": "62ff0583-92bb-43ec-af9d-1c3ee88c8cd6",
+       "Uri": "api://2a42e61a-c75b-4f65-93ac-30d12bde9b33",
+       "Scope": "api://2a42e61a-c75b-4f65-93ac-30d12bde9b33/access_as_user"
+    }
 }
 ```
 

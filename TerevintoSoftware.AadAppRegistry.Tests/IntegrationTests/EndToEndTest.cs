@@ -28,7 +28,7 @@ internal class EndToEndTest
 
         var apiRegistrationResult = await registrationService.RegisterApiApp(apiCommand);
 
-        Assert.That(apiRegistrationResult.Status, Is.EqualTo(OperationResultStatus.Success));
+        Assert.That(apiRegistrationResult.Status, Is.EqualTo(ServiceOperationResultStatus.Success));
         TestContext.Out.WriteLine($"API Application registered with id {apiRegistrationResult.Data.ClientId}");
         TestContext.Out.WriteLine($"API Application registered with application uri {apiRegistrationResult.Data.Uri}");
         TestContext.Out.WriteLine($"API Application registered with scope {apiRegistrationResult.Data.Scope}");
@@ -45,7 +45,7 @@ internal class EndToEndTest
         var spaRegistrationResult = await registrationService.RegisterSpaApp(spaCommand);
         TestContext.Out.WriteLine($"SPA Application registered with id {spaRegistrationResult.Data.ClientId}");
 
-        OperationResultStatus addScopeStatus;
+        ServiceOperationResult addScopeResult;
         int triesLeft = 3;
 
         do
@@ -53,19 +53,19 @@ internal class EndToEndTest
             // This is retried a few times as the applications and scope are not immediately available in the Graph API to be read.
             await Task.Delay(10_000);
             triesLeft--;
-            addScopeStatus = await configurationService.AddAppScopeAsync(new()
+            addScopeResult = await configurationService.AddAppScopeAsync(new()
             {
                 ApiAppId = apiRegistrationResult.Data.ClientId.ToString(),
                 ApplicationName = spaRegistrationResult.Data.ClientId.ToString(),
                 ScopeName = "access_as_user"
             });
         }
-        while (addScopeStatus == OperationResultStatus.NotFound && triesLeft >= 0);
+        while (addScopeResult.Status == ServiceOperationResultStatus.NotFound && triesLeft >= 0);
 
         await Helpers.DeleteAppRegistrationAsync(apiAppName, apiRegistrationResult.Data.ClientId);
         await Helpers.DeleteAppRegistrationAsync(spaAppName, spaRegistrationResult.Data.ClientId);
 
-        Assert.That(addScopeStatus, Is.EqualTo(OperationResultStatus.Success));
+        Assert.That(addScopeResult.Status, Is.EqualTo(ServiceOperationResultStatus.Success));
         TestContext.Out.WriteLine($"Scope access_as_user added to SPA Application {spaRegistrationResult.Data.ClientId}");
     }
 
@@ -87,7 +87,7 @@ internal class EndToEndTest
 
         var apiRegistrationResult = await registrationService.RegisterApiApp(apiCommand);
 
-        Assert.That(apiRegistrationResult.Status, Is.EqualTo(OperationResultStatus.Success));
+        Assert.That(apiRegistrationResult.Status, Is.EqualTo(ServiceOperationResultStatus.Success));
         TestContext.Out.WriteLine($"API Application registered with id {apiRegistrationResult.Data.ClientId}");
         TestContext.Out.WriteLine($"API Application registered with application uri {apiRegistrationResult.Data.Uri}");
         TestContext.Out.WriteLine($"API Application registered with scope {apiRegistrationResult.Data.Scope}");
@@ -104,7 +104,7 @@ internal class EndToEndTest
         var spaRegistrationResult = await registrationService.RegisterSpaApp(spaCommand);
         TestContext.Out.WriteLine($"SPA Application registered with id {spaRegistrationResult.Data.ClientId}");
 
-        OperationResultStatus addScopeStatus;
+        ServiceOperationResult addScopeResult;
         int triesLeft = 3;
 
         do
@@ -112,19 +112,19 @@ internal class EndToEndTest
             // This is retried a few times as the applications and scope are not immediately available in the Graph API to be read.
             await Task.Delay(10_000);
             triesLeft--;
-            addScopeStatus = await configurationService.AddAppScopeAsync(new()
+            addScopeResult = await configurationService.AddAppScopeAsync(new()
             {
                 ApiAppId = apiRegistrationResult.Data.ClientId.ToString(),
                 ApplicationName = spaRegistrationResult.Data.ClientId.ToString(),
                 ScopeName = "access_as_user"
             });
         }
-        while (addScopeStatus == OperationResultStatus.NotFound && triesLeft >= 0);
+        while (addScopeResult.Status == ServiceOperationResultStatus.NotFound && triesLeft >= 0);
 
         await Helpers.DeleteAppRegistrationAsync(apiAppName, apiRegistrationResult.Data.ClientId);
         await Helpers.DeleteAppRegistrationAsync(spaAppName, spaRegistrationResult.Data.ClientId);
 
-        Assert.That(addScopeStatus, Is.EqualTo(OperationResultStatus.Success));
+        Assert.That(addScopeResult.Status, Is.EqualTo(ServiceOperationResultStatus.Success));
         TestContext.Out.WriteLine($"Scope access_as_user added to SPA Application {spaRegistrationResult.Data.ClientId}");
     }
 }

@@ -31,7 +31,7 @@ internal class AppRegistrationsWebTest
 
         var result = await _registrationService.RegisterWebApp(command);
 
-        Assert.That(result.Status, Is.EqualTo(OperationResultStatus.Success));
+        Assert.That(result.Status, Is.EqualTo(ServiceOperationResultStatus.Success));
         TestContext.Out.WriteLine($"Application registered with id {result.Data.ClientId}");
 
         await Helpers.DeleteAppRegistrationAsync(appName, result.Data.ClientId);

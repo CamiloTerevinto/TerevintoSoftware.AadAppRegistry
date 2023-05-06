@@ -1,4 +1,4 @@
-﻿using Spectre.Console;
+﻿using Microsoft.Graph.Models;
 using TerevintoSoftware.AadAppRegistry.Tool.Settings;
 using TerevintoSoftware.AadAppRegistry.Tool.Utilities;
 
@@ -6,8 +6,8 @@ namespace TerevintoSoftware.AadAppRegistry.Tool.Services;
 
 internal interface IAppConfigurationService
 {
-    Task<OperationResultStatus> AddAppScopeAsync(ConfigureAppAddScopeSettings settings);
-    Task<OperationResultStatus> DeleteAppAsync(DeleteAppSettings settings);
+    Task<ServiceOperationResult> AddAppScopeAsync(ConfigureAppAddScopeSettings settings);
+    Task<ServiceOperationResult> DeleteAppAsync(DeleteAppSettings settings);
 }
 
 internal class AppConfigurationService : IAppConfigurationService
@@ -19,51 +19,71 @@ internal class AppConfigurationService : IAppConfigurationService
         _graphService = graphService;
     }
 
-    public async Task<OperationResultStatus> AddAppScopeAsync(ConfigureAppAddScopeSettings settings)
+    public async Task<ServiceOperationResult> AddAppScopeAsync(ConfigureAppAddScopeSettings settings)
     {
-        var application = await _graphService.GetApplicationByIdOrNameAsync(settings.ApplicationName);
+        var getAppResult = await EnsureApplicationExistsAsync(settings.ApiAppId);
 
-        if (application == null)
+        if (!getAppResult.Success)
         {
-            AnsiConsole.MarkupLine("[bold red]Error:[/] the consumer application Id provided could not be found");
-            return OperationResultStatus.NotFound;
+            return getAppResult;
         }
 
-        var api = await _graphService.GetApplicationByIdOrNameAsync(settings.ApiAppId);
+        var application = getAppResult.Data;
+        var getApiResult = await EnsureApplicationExistsAsync(settings.ApiAppId);
 
-        if (api == null)
+        if (!getApiResult.Success)
         {
-            AnsiConsole.MarkupLine("[bold red]Error:[/] the API Id provided could not be found");
-            return OperationResultStatus.NotFound;
+            return getApiResult;
         }
 
+        var api = getApiResult.Data;
         var scope = api.Api.Oauth2PermissionScopes.FirstOrDefault(x => x.Value == settings.ScopeName);
 
         if (scope == null)
         {
-            AnsiConsole.MarkupLine("[bold red]Error:[/] the scope name provided could not be found");
-            return OperationResultStatus.NotFound;
+            return new(ServiceOperationResultStatus.NotFound, "The scope name provided could not be found");
         }
 
-        await _graphService.AddConsumedScopeByIdAsync(application, api.AppId, scope.Id.Value);
+        var addScopeResult = await _graphService.AddConsumedScopeByIdAsync(application, api.AppId, scope.Id.Value);
 
-        AnsiConsole.MarkupLine("[bold green]Success:[/] the scope was added to the application. Note that you need to grant admin approval for the scope.");
+        if (!addScopeResult.Success)
+        {
+            return addScopeResult;
+        }
 
-        return OperationResultStatus.Success;
+        var link = Constants.PortalApiPermissionsUrl + application.AppId;
+
+        return new(ServiceOperationResultStatus.Success, $"The scope was added to the application, but you need to grant admin approval here: {link}");
     }
 
-    public async Task<OperationResultStatus> DeleteAppAsync(DeleteAppSettings settings)
+    public async Task<ServiceOperationResult> DeleteAppAsync(DeleteAppSettings settings)
     {
-        var application = await _graphService.GetApplicationByIdOrNameAsync(settings.ApplicationName);
-        if (application == null)
+        var getApplicationResult = await EnsureApplicationExistsAsync(settings.ApplicationName);
+
+        if (!getApplicationResult.Success)
         {
-            AnsiConsole.MarkupLine("[bold red]Error:[/] the application Id provided could not be found");
-            return OperationResultStatus.Failed;
+            return getApplicationResult;
         }
 
-        await _graphService.DeleteApplicationAsync(application);
-        AnsiConsole.MarkupLine("[bold green]Success:[/] the application was deleted.");
+        var deleteAppResult = await _graphService.DeleteApplicationAsync(getApplicationResult.Data);
 
-        return OperationResultStatus.Success;
+        if (deleteAppResult.Success)
+        {
+            return deleteAppResult;
+        }
+
+        return new(ServiceOperationResultStatus.Success, "The application was deleted.");
+    }
+
+    private async Task<ServiceOperationResult<Application>> EnsureApplicationExistsAsync(string applicationNameOrId)
+    {
+        var getApplicationResult = await _graphService.GetApplicationByIdOrNameAsync(applicationNameOrId);
+
+        if (getApplicationResult.Success && getApplicationResult.Data == null)
+        {
+            return new(ServiceOperationResultStatus.NotFound, $"The application Id/name provided, '{applicationNameOrId}', could not be found");
+        }
+
+        return getApplicationResult;
     }
 }

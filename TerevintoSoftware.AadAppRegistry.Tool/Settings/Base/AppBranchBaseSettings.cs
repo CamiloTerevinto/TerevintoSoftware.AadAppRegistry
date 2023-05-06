@@ -6,7 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace TerevintoSoftware.AadAppRegistry.Tool.Settings.Base;
 
 [ExcludeFromCodeCoverage]
-public abstract class ConfigureAppBaseSettings : CommandSettings
+public abstract class AppBranchBaseSettings : CommandSettings
 {
     [CommandArgument(0, "[APP]")]
     [Description("The Display Name or Client Id of the application")]

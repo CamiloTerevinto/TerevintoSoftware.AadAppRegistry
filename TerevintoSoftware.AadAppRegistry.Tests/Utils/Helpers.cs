@@ -15,7 +15,7 @@ internal static class Helpers
             SuppressConfirmation = false
         });
 
-        Assert.That(deleteResult, Is.EqualTo(OperationResultStatus.Success));
+        Assert.That(deleteResult.Status, Is.EqualTo(ServiceOperationResultStatus.Success));
         TestContext.Out.WriteLine($"Application with id {clientId} deleted");
     }
 

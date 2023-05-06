@@ -31,7 +31,7 @@ internal class AppRegistrationsConfidentialTest
 
         var result = await _registrationService.RegisterConfidentialAppAsync(command);
 
-        Assert.That(result.Status, Is.EqualTo(OperationResultStatus.Success));
+        Assert.That(result.Status, Is.EqualTo(ServiceOperationResultStatus.Success));
         TestContext.Out.WriteLine($"Application registered with id {result.Data.ClientId}");
         TestContext.Out.WriteLine($"Application registered with secret {result.Data.Secret}");
 
@@ -56,7 +56,7 @@ internal class AppRegistrationsConfidentialTest
 
         var result = await _registrationService.RegisterConfidentialAppAsync(command);
 
-        Assert.That(result.Status, Is.EqualTo(OperationResultStatus.Success), result.ErrorMessage);
+        Assert.That(result.Status, Is.EqualTo(ServiceOperationResultStatus.Success), result.Message);
         TestContext.Out.WriteLine($"Application registered with id {result.Data.ClientId}");
         TestContext.Out.WriteLine($"Application registered with secret {result.Data.Secret}");
 
