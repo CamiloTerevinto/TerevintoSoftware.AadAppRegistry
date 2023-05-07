@@ -33,18 +33,26 @@ internal class ViewAppDetailsCommand : AsyncCommand<ViewAppDetailsSettings>
 
         var app = result.Data;
         var uri = app.IdentifierUris.FirstOrDefault() ?? "";
-
-        var scopesToGet = app.RequiredResourceAccess.SelectMany(x => x.ResourceAccess.Select(y => (x.ResourceAppId, y.Id.Value))).ToList();
-        var scopeNamesResult = await _graphService.GetScopeNamesAsync(scopesToGet);
-
-        if (!scopeNamesResult.Success)
-        {
-            AnsiConsole.MarkupLine($"[red]{scopeNamesResult.Message}[/]");
-            return 1;
-        }
-
         var applicationUriBase = _appRegistryConfiguration.OperatingMode == OperatingMode.AzureB2C ?
             $"https://{_appRegistryConfiguration.TenantName}/" : "api://";
+
+        var scopesToGet = app.RequiredResourceAccess.SelectMany(x => x.ResourceAccess.Select(y => (x.ResourceAppId, y.Id.Value))).ToList();
+        var scopeNames = Array.Empty<string>();
+
+        if (scopesToGet.Any())
+        {
+            var scopeNamesResult = await _graphService.GetScopeNamesAsync(scopesToGet);
+
+            if (!scopeNamesResult.Success)
+            {
+                AnsiConsole.MarkupLine($"[red]{scopeNamesResult.Message}[/]");
+                return 1;
+            }
+
+            scopeNames = scopeNamesResult.Data
+                .Select(x => $"{applicationUriBase}{x.Item1}/{x.Item2}")
+                .ToArray();
+        }
 
         var data = new
         {
@@ -61,9 +69,7 @@ internal class ViewAppDetailsCommand : AsyncCommand<ViewAppDetailsSettings>
             Secret = app.PasswordCredentials.Count > 0
                 ? app.PasswordCredentials.All(x => x.EndDateTime > DateTime.Today) ? "Active" : "Expired"
                 : "",
-            ConsumedScopes = scopeNamesResult.Data
-                .Select(x => $"{applicationUriBase}{x.Item1}/{x.Item2}")
-                .ToList()
+            ConsumedScopes = scopeNames
         };
 
         AnsiConsole.Write(new JsonText(JsonSerializer.Serialize(data)));
