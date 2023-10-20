@@ -17,7 +17,8 @@
 		<Description>An opinionated .NET tool to facilitate the creation of Azure AD App Registrations.
 Read the README in the GitHub project for information on usage.
 		</Description>
-		<PackageReleaseNotes>[1.0.2]: Fix a bug in the app view command when the application does not consume any scopes.
+		<PackageReleaseNotes>[1.0.3]: Update packages for CVE-2023-36414
+[1.0.2]: Fix a bug in the app view command when the application does not consume any scopes.
 [1.0.1]: Improve output of the list command.
 [1.0.0]: Initial GA release. Adds a number of new features and improves several commands.
 [0.5.0]: Add support for pushing secrets to Azure Key Vault. Add support for deleting app registrations.
@@ -26,7 +27,7 @@ Read the README in the GitHub project for information on usage.
 [0.2.0]: Change the default path to the configuration file to be the user's directory.
 [0.1.0]: Initial beta release.
 		</PackageReleaseNotes>
-		<Version>1.0.2</Version>
+		<Version>1.0.3</Version>
 		<PackageIconUrl>https://www.camiloterevinto.com/assets/_nuget.png</PackageIconUrl>
 	</PropertyGroup>
 
@@ -42,13 +43,13 @@ Read the README in the GitHub project for information on usage.
 	</ItemGroup>
 	
 	<ItemGroup>
-		<PackageReference Include="Azure.Identity" Version="1.8.2" />
+		<PackageReference Include="Azure.Identity" Version="1.10.2" />
 		<PackageReference Include="Azure.Security.KeyVault.Secrets" Version="4.5.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="7.0.0" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
-		<PackageReference Include="Microsoft.Graph" Version="5.8.0" />
-		<PackageReference Include="Spectre.Console.Cli" Version="0.46.0" />
-		<PackageReference Include="Spectre.Console.Json" Version="0.46.0" />
+		<PackageReference Include="Microsoft.Graph" Version="5.30.0" />
+		<PackageReference Include="Spectre.Console.Cli" Version="0.47.0" />
+		<PackageReference Include="Spectre.Console.Json" Version="0.47.0" />
 	</ItemGroup>
 
 </Project>

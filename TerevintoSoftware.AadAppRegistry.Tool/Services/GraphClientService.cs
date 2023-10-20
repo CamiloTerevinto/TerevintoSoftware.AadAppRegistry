@@ -150,7 +150,8 @@ internal class GraphClientService : IGraphClientService
                         Id = Guid.NewGuid(),
                         Type = "Admin"
                     }
-                }
+                },
+                RequestedAccessTokenVersion = 2
             }
         };
 
@@ -170,7 +171,7 @@ internal class GraphClientService : IGraphClientService
         {
             Spa = new SpaApplication
             {
-                RedirectUris = redirectUrisToSet.ToList(),
+                RedirectUris = redirectUrisToSet.ToList()
             }
         };
 
@@ -210,7 +211,7 @@ internal class GraphClientService : IGraphClientService
         {
             PublicClient = new PublicClientApplication
             {
-                RedirectUris = redirectUrisToSet.ToList(),
+                RedirectUris = redirectUrisToSet.ToList()
             }
         };
 
