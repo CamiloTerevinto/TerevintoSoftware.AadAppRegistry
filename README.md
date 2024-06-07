@@ -1,3 +1,7 @@
+This repository has been archived as it has a couple of issues when registering clients that I have no time to fix. Now that apps can be registered through Bicep, this is also far less useful.
+
+--------------
+
 # AppReg
 
 [![Nuget version](https://img.shields.io/nuget/v/TerevintoSoftware.AadAppRegistry.Tool)](https://www.nuget.org/packages/TerevintoSoftware.AadAppRegistry.Tool/) [![Coverage Status](https://coveralls.io/repos/github/CamiloTerevinto/TerevintoSoftware.AadAppRegistry/badge.svg?branch=main)](https://coveralls.io/github/CamiloTerevinto/TerevintoSoftware.AadAppRegistry?branch=main)
